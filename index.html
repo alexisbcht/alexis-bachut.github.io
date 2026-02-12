@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alexis Bachut — Media Buyer Google Ads pour Artisans</title>
+    <meta name="description" content="Media Buyer freelance Google Ads. J'aide les artisans à générer plus de devis et à booster leur chiffre d'affaires grâce à Google Ads. 4 ans d'expérience en agence.">
+    <meta property="og:title" content="Alexis Bachut — Media Buyer Google Ads pour Artisans">
+    <meta property="og:description" content="Envie de plus de devis et de chantiers ? Je gère tes campagnes Google Ads pour faire décoller ton activité.">
+    <meta property="og:type" content="website">
+
+    <!-- Google Tag Manager — Remplace GTM-XXXXXXX par ton ID -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-XXXXXXX');</script>
+    <!-- End Google Tag Manager -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-dark: #0a0a0a;
+            --color-offwhite: #f5f0eb;
+            --color-cream: #ede6dd;
+            --color-accent: #e84d1a;
+            --color-accent-hover: #ff6634;
+            --color-text: #1a1a1a;
+            --color-text-muted: #6b6560;
+            --color-border: #d4cdc5;
+            --font-display: 'Instrument Serif', serif;
+            --font-mono: 'Space Mono', monospace;
+            --font-body: 'Outfit', sans-serif;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        ::selection { background: var(--color-accent); color: white; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-body); background: var(--color-offwhite); color: var(--color-text);
+            line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+
+        /* HEADER */
+        header {
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            background: rgba(245, 240, 235, 0.9);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--color-border);
+        }
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; }
+        .logo {
+            font-family: var(--font-mono); font-size: 0.85rem; color: var(--color-text);
+            text-decoration: none; text-transform: uppercase; letter-spacing: 2px; font-weight: 700;
+        }
+        .nav-links { display: flex; align-items: center; gap: 2.5rem; }
+        .nav-link {
+            font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-text-muted);
+            text-decoration: none; text-transform: uppercase; letter-spacing: 1.5px; transition: color 0.3s;
+        }
+        .nav-link:hover { color: var(--color-accent); }
+        .nav-cta {
+            background: var(--color-dark); color: var(--color-offwhite);
+            padding: 0.7rem 1.5rem; border-radius: 6px; text-decoration: none;
+            font-family: var(--font-body); font-weight: 600; font-size: 0.85rem; transition: all 0.3s ease;
+        }
+        .nav-cta:hover { background: var(--color-accent); transform: translateY(-1px); }
+
+        /* HERO */
+        .hero { min-height: 100vh; display: flex; align-items: center; padding-top: 5rem; }
+        .hero-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 4rem; align-items: center; }
+        .hero-eyebrow {
+            font-family: var(--font-mono); font-size: 0.8rem; text-transform: uppercase;
+            letter-spacing: 3px; color: var(--color-accent); margin-bottom: 1.5rem;
+            display: flex; align-items: center; gap: 0.75rem;
+            opacity: 0; animation: fadeIn 0.6s ease 0.2s forwards;
+        }
+        .hero-eyebrow::before { content: ''; width: 40px; height: 2px; background: var(--color-accent); }
+        .hero-text h1 {
+            font-family: var(--font-display); font-size: clamp(3rem, 5.5vw, 4.5rem);
+            line-height: 1.05; color: var(--color-dark); margin-bottom: 2rem; font-style: italic;
+            opacity: 0; animation: slideUp 0.8s ease 0.3s forwards;
+        }
+        .hero-text h1 .highlight { color: var(--color-accent); }
+        .hero-tagline {
+            font-size: 1.25rem; color: var(--color-text-muted); margin-bottom: 2.5rem;
+            max-width: 540px; font-weight: 400;
+            opacity: 0; animation: slideUp 0.8s ease 0.5s forwards;
+        }
+        .hero-actions {
+            display: flex; align-items: center; gap: 1.5rem; margin-bottom: 3.5rem;
+            opacity: 0; animation: slideUp 0.8s ease 0.6s forwards;
+        }
+        .btn-primary {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: var(--color-accent); color: white; padding: 1.1rem 2.2rem;
+            border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 1rem;
+            transition: all 0.3s ease; border: 2px solid var(--color-accent);
+        }
+        .btn-primary:hover {
+            background: var(--color-accent-hover); border-color: var(--color-accent-hover);
+            transform: translateY(-2px); box-shadow: 0 8px 25px rgba(232, 77, 26, 0.25);
+        }
+        .btn-secondary {
+            font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-text-muted);
+            text-decoration: none; text-transform: uppercase; letter-spacing: 1px; transition: color 0.3s;
+            border-bottom: 1px solid var(--color-border); padding-bottom: 2px;
+        }
+        .btn-secondary:hover { color: var(--color-accent); border-color: var(--color-accent); }
+        .hero-proof {
+            display: flex; gap: 3rem;
+            opacity: 0; animation: slideUp 0.8s ease 0.7s forwards;
+        }
+        .proof-number { font-family: var(--font-display); font-size: 2.2rem; font-style: italic; color: var(--color-dark); }
+        .proof-label {
+            font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase;
+            letter-spacing: 1.5px; color: var(--color-text-muted); margin-top: 0.2rem;
+        }
+        .hero-card {
+            background: var(--color-dark); color: var(--color-offwhite);
+            border-radius: 16px; padding: 2.5rem; position: relative;
+            opacity: 0; animation: slideLeft 0.8s ease 0.5s forwards;
+        }
+        .hero-card::before {
+            content: ''; position: absolute; top: -3px; left: -3px; right: -3px; bottom: -3px;
+            background: linear-gradient(135deg, var(--color-accent), transparent, var(--color-accent));
+            border-radius: 18px; z-index: -1; opacity: 0.4;
+        }
+        .card-label {
+            font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase;
+            letter-spacing: 2px; color: var(--color-accent); margin-bottom: 1.5rem;
+        }
+        .card-title { font-family: var(--font-display); font-size: 1.6rem; font-style: italic; margin-bottom: 1.5rem; line-height: 1.2; }
+        .promise-list { list-style: none; }
+        .promise-list li {
+            padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.95rem; display: flex; align-items: flex-start; gap: 0.75rem; font-weight: 400;
+        }
+        .promise-list li:last-child { border-bottom: none; }
+        .promise-list .check { color: var(--color-accent); font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+
+        /* TRUST STRIP */
+        .trust-strip { background: var(--color-dark); padding: 1.2rem 0; overflow: hidden; }
+        .marquee { display: flex; animation: marqueeScroll 20s linear infinite; width: max-content; }
+        .marquee-content { display: flex; align-items: center; gap: 3rem; padding: 0 1.5rem; }
+        .marquee-item {
+            font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase;
+            letter-spacing: 2px; color: rgba(245, 240, 235, 0.6); white-space: nowrap;
+            display: flex; align-items: center; gap: 0.75rem;
+        }
+        .marquee-item .dot { width: 5px; height: 5px; background: var(--color-accent); border-radius: 50%; }
+        @keyframes marqueeScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+        /* SECTION EYEBROW */
+        .section-eyebrow {
+            font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase;
+            letter-spacing: 3px; color: var(--color-accent); margin-bottom: 1.2rem;
+            display: flex; align-items: center; gap: 0.75rem;
+        }
+        .section-eyebrow::before { content: ''; width: 30px; height: 2px; background: var(--color-accent); }
+
+        /* PROBLEM */
+        .problem { padding: 7rem 0; }
+        .problem-header { max-width: 700px; margin-bottom: 4rem; }
+        .problem-header h2 {
+            font-family: var(--font-display); font-size: clamp(2.2rem, 4vw, 3.2rem);
+            font-style: italic; color: var(--color-dark); line-height: 1.1;
+        }
+        .problem-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        .problem-card {
+            background: var(--color-cream); padding: 2.2rem; border-radius: 12px;
+            border: 1px solid var(--color-border); transition: all 0.3s ease;
+        }
+        .problem-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.06); }
+        .problem-icon { font-size: 2rem; margin-bottom: 1rem; }
+        .problem-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--color-dark); }
+        .problem-card p { color: var(--color-text-muted); font-size: 0.95rem; line-height: 1.6; }
+
+        /* ABOUT */
+        .about { padding: 7rem 0; background: var(--color-dark); color: var(--color-offwhite); }
+        .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; }
+        .about-intro h2 {
+            font-family: var(--font-display); font-size: clamp(2.2rem, 4vw, 3rem);
+            font-style: italic; line-height: 1.1; margin-bottom: 2rem;
+        }
+        .about-intro h2 .accent { color: var(--color-accent); }
+        .about-text { font-size: 1.1rem; line-height: 1.8; color: rgba(245, 240, 235, 0.8); }
+        .about-text p { margin-bottom: 1.5rem; }
+        .about-text strong { color: var(--color-offwhite); }
+        .about-values { display: grid; gap: 1.5rem; }
+        .value-card {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            padding: 2rem; border-radius: 12px; transition: all 0.3s ease;
+        }
+        .value-card:hover { border-color: var(--color-accent); background: rgba(232, 77, 26, 0.05); }
+        .value-number { font-family: var(--font-mono); font-size: 0.7rem; color: var(--color-accent); letter-spacing: 2px; margin-bottom: 0.75rem; }
+        .value-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .value-card p { color: rgba(245, 240, 235, 0.6); font-size: 0.9rem; line-height: 1.6; }
+
+        /* SERVICES */
+        .services { padding: 7rem 0; }
+        .services-header { text-align: center; max-width: 600px; margin: 0 auto 4rem; }
+        .services-header h2 {
+            font-family: var(--font-display); font-size: clamp(2.2rem, 4vw, 3rem);
+            font-style: italic; color: var(--color-dark); line-height: 1.1;
+        }
+        .process-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+        .process-card { padding: 3rem 2.5rem; border-right: 1px solid var(--color-border); transition: background 0.3s ease; }
+        .process-card:last-child { border-right: none; }
+        .process-card:hover { background: var(--color-cream); }
+        .process-step {
+            font-family: var(--font-display); font-size: 4rem; font-style: italic;
+            color: var(--color-accent); opacity: 0.3; line-height: 1; margin-bottom: 1.5rem;
+        }
+        .process-card h3 { font-size: 1.3rem; font-weight: 700; color: var(--color-dark); margin-bottom: 1rem; }
+        .process-card p { color: var(--color-text-muted); font-size: 0.95rem; line-height: 1.7; }
+        .process-card .deliverable {
+            font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase;
+            letter-spacing: 1.5px; color: var(--color-accent); margin-top: 1.5rem;
+            padding-top: 1rem; border-top: 1px solid var(--color-border);
+        }
+
+        /* PRICING */
+        .pricing { padding: 7rem 0; background: var(--color-cream); }
+        .pricing-content { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+        .pricing-text h2 {
+            font-family: var(--font-display); font-size: clamp(2.2rem, 4vw, 3rem);
+            font-style: italic; color: var(--color-dark); line-height: 1.1; margin-bottom: 1.5rem;
+        }
+        .pricing-text p { font-size: 1.1rem; color: var(--color-text-muted); line-height: 1.7; margin-bottom: 1rem; }
+        .pricing-includes { list-style: none; margin: 2rem 0; }
+        .pricing-includes li {
+            padding: 0.6rem 0; color: var(--color-text); font-weight: 500;
+            display: flex; align-items: center; gap: 0.75rem;
+        }
+        .pricing-includes .inc-check { color: var(--color-accent); font-weight: 700; }
+        .pricing-card-big {
+            background: var(--color-dark); color: var(--color-offwhite);
+            padding: 3rem; border-radius: 16px; text-align: center; position: relative; overflow: hidden;
+        }
+        .pricing-card-big::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--color-accent); }
+        .pricing-card-big h3 { font-family: var(--font-display); font-size: 2rem; font-style: italic; margin-bottom: 1rem; }
+        .pricing-card-big p { color: rgba(245,240,235,0.7); margin-bottom: 2rem; font-size: 1rem; line-height: 1.6; }
+        .pricing-card-big .btn-primary { width: 100%; justify-content: center; font-size: 1.05rem; padding: 1.2rem; }
+        .pricing-card-big .no-commitment {
+            font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase;
+            letter-spacing: 1.5px; color: rgba(245,240,235,0.4); margin-top: 1.2rem;
+        }
+
+        /* CONTACT */
+        .contact { padding: 7rem 0; }
+        .contact-layout { display: grid; grid-template-columns: 1fr 1.2fr; gap: 4rem; }
+        .contact-left h2 {
+            font-family: var(--font-display); font-size: clamp(2.2rem, 4vw, 3rem);
+            font-style: italic; color: var(--color-dark); line-height: 1.1; margin-bottom: 1.5rem;
+        }
+        .contact-left > p { color: var(--color-text-muted); font-size: 1.05rem; margin-bottom: 2.5rem; line-height: 1.7; }
+        .contact-links { display: flex; flex-direction: column; gap: 1rem; }
+        .contact-link {
+            display: flex; align-items: center; gap: 1rem; padding: 1.2rem 1.5rem;
+            background: var(--color-cream); border-radius: 10px; text-decoration: none;
+            color: var(--color-text); font-weight: 600; transition: all 0.3s ease; border: 1px solid transparent;
+        }
+        .contact-link:hover { border-color: var(--color-accent); transform: translateX(4px); }
+        .contact-link.primary-link { background: var(--color-accent); color: white; }
+        .contact-link.primary-link:hover { background: var(--color-accent-hover); transform: translateX(4px); }
+        .contact-link-icon {
+            width: 40px; height: 40px; background: rgba(0,0,0,0.06); border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;
+        }
+        .primary-link .contact-link-icon { background: rgba(255,255,255,0.2); }
+        .contact-form-card { background: white; padding: 2.5rem; border-radius: 16px; border: 1px solid var(--color-border); }
+        .form-title { font-family: var(--font-display); font-size: 1.5rem; font-style: italic; margin-bottom: 0.5rem; color: var(--color-dark); }
+        .form-subtitle { color: var(--color-text-muted); font-size: 0.9rem; margin-bottom: 2rem; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--color-text); margin-bottom: 0.4rem; }
+        .form-group input, .form-group textarea {
+            width: 100%; padding: 0.9rem 1rem; border: 2px solid var(--color-border);
+            border-radius: 8px; font-family: var(--font-body); font-size: 0.95rem;
+            transition: all 0.3s ease; background: var(--color-offwhite);
+        }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--color-accent); background: white; }
+        .form-group textarea { min-height: 120px; resize: vertical; }
+        .submit-btn {
+            width: 100%; background: var(--color-dark); color: var(--color-offwhite);
+            padding: 1.1rem; border: none; border-radius: 8px; font-family: var(--font-body);
+            font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease;
+        }
+        .submit-btn:hover { background: var(--color-accent); transform: translateY(-2px); }
+
+        /* FOOTER */
+        footer { background: var(--color-dark); color: rgba(245,240,235,0.5); padding: 2.5rem 0; }
+        .footer-content { display: flex; justify-content: space-between; align-items: center; }
+        .footer-content p { font-size: 0.85rem; }
+        .footer-links { display: flex; gap: 2rem; }
+        .footer-links a { font-size: 0.85rem; color: rgba(245,240,235,0.5); text-decoration: none; transition: color 0.3s; }
+        .footer-links a:hover { color: var(--color-accent); }
+
+        /* ANIMATIONS */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(25px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideLeft { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+        .reveal { opacity: 0; transform: translateY(20px); transition: all 0.6s ease; }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* RESPONSIVE */
+        @media (max-width: 968px) {
+            .hero-grid, .about-grid, .pricing-content, .contact-layout { grid-template-columns: 1fr; gap: 2.5rem; }
+            .process-grid, .problem-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+            .process-card { border-right: none; border-bottom: 1px solid var(--color-border); padding: 2rem; }
+            .process-card:last-child { border-bottom: none; }
+            .nav-link { display: none; }
+            .form-row { grid-template-columns: 1fr; }
+            .footer-content { flex-direction: column; gap: 1rem; text-align: center; }
+            .about-grid { gap: 3rem; }
+            .hero { min-height: auto; padding: 7rem 0 4rem; }
+            .hero-card { margin-top: 1rem; }
+            .pricing-card-big { margin-top: 0.5rem; }
+        }
+        @media (max-width: 640px) {
+            .container { padding: 0 1.25rem; }
+            .hero-proof { flex-direction: column; gap: 1.5rem; }
+            .hero-actions { flex-direction: column; align-items: stretch; }
+            .btn-primary { text-align: center; justify-content: center; padding: 1rem 1.5rem; font-size: 0.95rem; }
+            .btn-secondary { text-align: center; padding: 0.75rem 0; }
+            .hero-text h1 { font-size: 2.4rem; }
+            .hero-tagline { font-size: 1.05rem; }
+            .hero-card { padding: 2rem; }
+            .card-title { font-size: 1.3rem; }
+            .problem-card, .value-card { padding: 1.5rem; }
+            .process-card { padding: 1.5rem; }
+            .process-step { font-size: 3rem; }
+            .pricing-card-big { padding: 2rem; }
+            .pricing-card-big h3 { font-size: 1.6rem; }
+            .contact-form-card { padding: 1.5rem; }
+            .section-eyebrow { font-size: 0.7rem; }
+            .problem-header h2, .about-intro h2, .services-header h2,
+            .pricing-text h2, .contact-left h2 { font-size: 1.8rem; }
+            .contact-link { padding: 1rem; font-size: 0.9rem; }
+            .footer-links { flex-direction: column; gap: 0.75rem; }
+            nav { padding: 0.75rem 0; }
+            .logo { font-size: 0.75rem; }
+            .nav-cta { padding: 0.6rem 1.2rem; font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Google Tag Manager (noscript) — Même ID que ci-dessus -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <header>
+        <div class="container">
+            <nav>
+                <a href="#" class="logo">Alexis Bachut</a>
+                <div class="nav-links">
+                    <a href="#methode" class="nav-link">Méthode</a>
+                    <a href="#services" class="nav-link">Services</a>
+                    <a href="#contact" class="nav-link">Contact</a>
+                    <a href="https://calendly.com/alexis-bachut/30min" target="_blank" class="nav-cta" data-track="cta-calendly" data-track-location="nav">Réserver un appel</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-grid">
+                <div class="hero-text">
+                    <div class="hero-eyebrow">Media Buyer Google Ads</div>
+                    <h1>Votre téléphone <br>ne sonne <span class="highlight">pas assez ?</span></h1>
+                    <p class="hero-tagline">Je gère tes campagnes Google Ads de A à Z pour que les clients te trouvent au moment exact où ils cherchent ton métier. Toi, tu te concentres sur tes chantiers.</p>
+                    <div class="hero-actions">
+                        <a href="https://calendly.com/alexis-bachut/30min" target="_blank" class="btn-primary" data-track="cta-calendly" data-track-location="hero">Discutons de ton projet — c'est gratuit →</a>
+                        <a href="#methode" class="btn-secondary">Découvrir ma méthode</a>
+                    </div>
+                    <div class="hero-proof">
+                        <div class="proof-item">
+                            <div class="proof-number">7 jours</div>
+                            <div class="proof-label">Pour être visible</div>
+                        </div>
+                        <div class="proof-item">
+                            <div class="proof-number">0€</div>
+                            <div class="proof-label">L'appel découverte</div>
+                        </div>
+                        <div class="proof-item">
+                            <div class="proof-number">100%</div>
+                            <div class="proof-label">Personnalisé</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-card">
+                    <div class="card-label">Ce que tu gagnes</div>
+                    <div class="card-title">Des chantiers en plus, sans prospecter.</div>
+                    <ul class="promise-list">
+                        <li><span class="check">→</span> Tu apparais en haut de Google quand on cherche ton métier</li>
+                        <li><span class="check">→</span> Tu reçois des demandes de devis qualifiées</li>
+                        <li><span class="check">→</span> Tu sais exactement combien chaque lead te coûte</li>
+                        <li><span class="check">→</span> Tu gardes le contrôle total de tes comptes</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="trust-strip">
+        <div class="marquee">
+            <div class="marquee-content">
+                <span class="marquee-item"><span class="dot"></span>Google Ads</span>
+                <span class="marquee-item"><span class="dot"></span>Artisans & TPE</span>
+                <span class="marquee-item"><span class="dot"></span>Plus de visibilité</span>
+                <span class="marquee-item"><span class="dot"></span>Plus de devis</span>
+                <span class="marquee-item"><span class="dot"></span>Plus de chiffre d'affaires</span>
+                <span class="marquee-item"><span class="dot"></span>Transparence totale</span>
+                <span class="marquee-item"><span class="dot"></span>Sans engagement</span>
+                <span class="marquee-item"><span class="dot"></span>France entière</span>
+            </div>
+            <div class="marquee-content">
+                <span class="marquee-item"><span class="dot"></span>Google Ads</span>
+                <span class="marquee-item"><span class="dot"></span>Artisans & TPE</span>
+                <span class="marquee-item"><span class="dot"></span>Plus de visibilité</span>
+                <span class="marquee-item"><span class="dot"></span>Plus de devis</span>
+                <span class="marquee-item"><span class="dot"></span>Plus de chiffre d'affaires</span>
+                <span class="marquee-item"><span class="dot"></span>Transparence totale</span>
+                <span class="marquee-item"><span class="dot"></span>Sans engagement</span>
+                <span class="marquee-item"><span class="dot"></span>France entière</span>
+            </div>
+        </div>
+    </div>
+
+    <section class="problem">
+        <div class="container">
+            <div class="problem-header">
+                <div class="section-eyebrow">Le constat</div>
+                <h2>Tu es excellent dans ton métier. Il te manque juste la visibilité pour le prouver.</h2>
+            </div>
+            <div class="problem-grid">
+                <div class="problem-card reveal">
+                    <div class="problem-icon">📞</div>
+                    <h3>Le bouche-à-oreille a ses limites</h3>
+                    <p>Ça t'a bien lancé, mais pour développer ton activité, il te faut un flux régulier de nouvelles demandes. Google Ads te permet d'aller chercher des clients qui ont besoin de toi maintenant.</p>
+                </div>
+                <div class="problem-card reveal">
+                    <div class="problem-icon">🔍</div>
+                    <h3>Tes futurs clients te cherchent en ligne</h3>
+                    <p>Chaque jour, des gens tapent ton métier + ta ville sur Google. Si tu n'apparais pas, c'est ton concurrent qui récupère ces demandes de devis. Autant que ce soit toi.</p>
+                </div>
+                <div class="problem-card reveal">
+                    <div class="problem-icon">🚀</div>
+                    <h3>Tu mérites un vrai accompagnement</h3>
+                    <p>Ton temps est précieux, tu le passes sur tes chantiers. Tu as besoin d'un partenaire qui gère ta visibilité en ligne et qui te rend des comptes clairs sur les résultats.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="about" id="methode">
+        <div class="container">
+            <div class="about-grid">
+                <div class="about-intro">
+                    <div class="section-eyebrow" style="color: var(--color-accent);">Qui je suis</div>
+                    <h2>Alexis Bachut.<br><span class="accent">Ton partenaire croissance Google Ads.</span></h2>
+                    <div class="about-text">
+                        <p>4 ans en agence média à piloter des campagnes pour des marques à gros budgets. J'ai maîtrisé les stratégies qui fonctionnent, et j'ai surtout compris ce qui fait la différence entre une campagne rentable et une campagne qui brûle du budget.</p>
+                        <p>Aujourd'hui, je mets toute cette expertise <strong>au service des artisans et TPE</strong>. Mon objectif : te donner accès aux mêmes leviers de croissance que les grandes entreprises, avec un accompagnement humain et personnalisé.</p>
+                        <p>Je t'explique tout en toute transparence. Si une stratégie ne fonctionne pas, je te le dis et on ajuste ensemble.</p>
+                    </div>
+                </div>
+                <div class="about-values">
+                    <div class="value-card">
+                        <div class="value-number">01 —</div>
+                        <h3>Tes comptes t'appartiennent</h3>
+                        <p>Accès total, tout le temps. Si on arrête de travailler ensemble, tu repars avec tout. C'est normal.</p>
+                    </div>
+                    <div class="value-card">
+                        <div class="value-number">02 —</div>
+                        <h3>Des résultats que tu peux mesurer</h3>
+                        <p>Combien tu as investi, combien de demandes de devis tu as reçues, combien te coûte chaque prospect. Tout est clair.</p>
+                    </div>
+                    <div class="value-card">
+                        <div class="value-number">03 —</div>
+                        <h3>Pas d'engagement forcé</h3>
+                        <p>Pas de contrat 12 mois. Si les résultats sont au rendez-vous, tu restes. C'est aussi simple que ça.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="services" id="services">
+        <div class="container">
+            <div class="services-header">
+                <div class="section-eyebrow" style="justify-content: center;">Comment ça marche</div>
+                <h2>3 étapes pour booster ton activité</h2>
+            </div>
+            <div class="process-grid">
+                <div class="process-card reveal">
+                    <div class="process-step">01</div>
+                    <h3>On échange sur ton projet</h3>
+                    <p>30 minutes pour comprendre ton activité, ta zone et tes ambitions. Je t'explique comment Google Ads peut t'aider à décrocher plus de devis. Et si ce n'est pas le bon levier pour toi, je te le dis.</p>
+                    <div class="deliverable">→ Diagnostic offert</div>
+                </div>
+                <div class="process-card reveal">
+                    <div class="process-step">02</div>
+                    <h3>Je mets en place tes campagnes</h3>
+                    <p>Recherche de mots-clés, rédaction des annonces, mise en place du suivi. En une semaine, tu es visible en haut de Google quand quelqu'un cherche ton métier dans ta zone.</p>
+                    <div class="deliverable">→ Campagnes en ligne sous 7 jours</div>
+                </div>
+                <div class="process-card reveal">
+                    <div class="process-step">03</div>
+                    <h3>J'optimise, tu développes ton CA</h3>
+                    <p>Suivi quotidien de tes performances. J'améliore tes campagnes en continu pour maximiser chaque euro investi. Tu reçois un bilan clair chaque mois avec les résultats concrets.</p>
+                    <div class="deliverable">→ Reporting mensuel clair</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="pricing">
+        <div class="container">
+            <div class="pricing-content">
+                <div class="pricing-text">
+                    <div class="section-eyebrow">Investissement</div>
+                    <h2>Un accompagnement adapté à ton budget et tes ambitions.</h2>
+                    <p>Que tu débutes ou que tu veuilles accélérer, je te propose une formule sur-mesure. Voici ce qui est toujours inclus :</p>
+                    <ul class="pricing-includes">
+                        <li><span class="inc-check">✓</span> Analyse de ton marché et de tes concurrents</li>
+                        <li><span class="inc-check">✓</span> Création et configuration complète des campagnes</li>
+                        <li><span class="inc-check">✓</span> Optimisation quotidienne de tes résultats</li>
+                        <li><span class="inc-check">✓</span> Reporting mensuel clair et actionnable</li>
+                        <li><span class="inc-check">✓</span> Un interlocuteur dédié (moi)</li>
+                    </ul>
+                </div>
+                <div class="pricing-card-big">
+                    <h3>Tarif sur-mesure</h3>
+                    <p>On en discute ensemble pendant l'appel découverte. Je te propose un tarif adapté à ton budget pub et tes objectifs de croissance.</p>
+                    <a href="https://calendly.com/alexis-bachut/30min" target="_blank" class="btn-primary" data-track="cta-calendly" data-track-location="pricing">Réserver mon appel gratuit →</a>
+                    <div class="no-commitment">Sans engagement · 30 min · 100% gratuit</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="contact" id="contact">
+        <div class="container">
+            <div class="contact-layout">
+                <div class="contact-left">
+                    <div class="section-eyebrow">Contact</div>
+                    <h2>Envie de développer ton activité ? Parlons-en.</h2>
+                    <p>Je te réponds sous 24h. C'est bien moi de l'autre côté, pas un chatbot.</p>
+                    <div class="contact-links">
+                        <a href="https://calendly.com/alexis-bachut/30min" target="_blank" class="contact-link primary-link" data-track="cta-calendly" data-track-location="contact">
+                            <div class="contact-link-icon">📅</div>
+                            Réserver un créneau — 30 min gratuites
+                        </a>
+                        <a href="mailto:alexis.bachut@gmail.com" class="contact-link" data-track="cta-email" data-track-location="contact">
+                            <div class="contact-link-icon">📧</div>
+                            alexis.bachut@gmail.com
+                        </a>
+                        <a href="tel:+33689254505" class="contact-link" data-track="cta-telephone" data-track-location="contact">
+                            <div class="contact-link-icon">📱</div>
+                            06 89 25 45 05
+                        </a>
+                        <a href="https://www.linkedin.com/in/alexis-bachut/" target="_blank" class="contact-link" data-track="cta-linkedin" data-track-location="contact">
+                            <div class="contact-link-icon">💼</div>
+                            LinkedIn — Alexis Bachut
+                        </a>
+                    </div>
+                </div>
+                <div class="contact-form-card">
+                    <h3 class="form-title">Envoie-moi un message</h3>
+                    <p class="form-subtitle">Dis-moi ce que tu fais et ce que tu aimerais développer. Je te recontacte rapidement.</p>
+                    <form action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="name">Nom *</label>
+                                <input type="text" id="name" name="name" placeholder="Jean Dupont" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Téléphone</label>
+                                <input type="tel" id="phone" name="phone" placeholder="06 12 34 56 78">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" id="email" name="email" placeholder="jean@exemple.fr" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="activity">Ton métier</label>
+                            <input type="text" id="activity" name="activity" placeholder="Plombier, électricien, couvreur...">
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Ton projet *</label>
+                            <textarea id="message" name="message" required placeholder="Parle-moi de ton activité et de ce que tu aimerais développer..."></textarea>
+                        </div>
+                        <button type="submit" class="submit-btn" data-track="cta-formulaire" data-track-location="contact">Envoyer →</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <p>© 2025 Alexis Bachut — Media Buyer Freelance</p>
+                <div class="footer-links">
+                    <a href="mailto:alexis.bachut@gmail.com">alexis.bachut@gmail.com</a>
+                    <a href="https://www.linkedin.com/in/alexis-bachut/" target="_blank">LinkedIn</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Scroll reveal
+        const reveals = document.querySelectorAll('.reveal');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('visible');
+            });
+        }, { threshold: 0.15 });
+        reveals.forEach(el => observer.observe(el));
+
+        // DataLayer push — envoie un événement GTM à chaque clic sur un élément [data-track]
+        document.addEventListener('click', function(e) {
+            var el = e.target.closest('[data-track]');
+            if (el) {
+                window.dataLayer = window.dataLayer || [];
+                window.dataLayer.push({
+                    'event': el.getAttribute('data-track'),
+                    'track_location': el.getAttribute('data-track-location') || '',
+                    'track_url': el.href || ''
+                });
+            }
+        });
+    </script>
+</body>
+</html>

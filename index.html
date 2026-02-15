@@ -572,12 +572,19 @@
         @media (max-width: 968px) {
             .hero-layout {
                 grid-template-columns: 1fr;
-                gap: 3rem;
+                gap: 2rem;
             }
             .hero-photo-wrap {
-                max-width: 220px;
-                order: -1;
+                max-width: 180px;
+                order: 1;
             }
+            .hero-stats {
+                gap: 2rem;
+                margin-top: 2rem;
+                padding-top: 1.5rem;
+            }
+            .stat-val { font-size: 1.6rem; }
+            .stat-label { font-size: 0.6rem; }
             .constat-grid {
                 grid-template-columns: 1fr;
             }
@@ -616,21 +623,29 @@
                 grid-template-columns: 1fr;
                 gap: 2.5rem;
             }
+            .form-row { grid-template-columns: 1fr; }
             .nav-link { display: none; }
         }
 
         @media (max-width: 640px) {
             .wrap { padding: 0 1.2rem; }
-            .hero { padding: 7rem 0 4rem; min-height: auto; }
-            .hero h1 { font-size: 2.4rem; }
-            .hero-sub { font-size: 1rem; }
-            .hero-stats { flex-direction: column; gap: 1.2rem; }
-            .hero-photo-wrap { max-width: 180px; }
+            .hero { padding: 6rem 0 3rem; min-height: auto; }
+            .hero h1 { font-size: 2rem; }
+            .hero-sub { font-size: 0.95rem; }
+            .hero-stats {
+                flex-direction: row; flex-wrap: wrap;
+                gap: 1.5rem; margin-top: 1.5rem;
+                padding-top: 1.2rem;
+            }
+            .stat-val { font-size: 1.4rem; }
+            .stat-label { font-size: 0.58rem; }
+            .hero-photo-wrap { max-width: 140px; }
+            .hero-tag { font-size: 0.65rem; }
+            .hero-cta { font-size: 0.85rem; padding: 0.9rem 1.8rem; }
             .step { padding: 2rem 1.5rem; }
             .step-num { font-size: 3.5rem; }
             .pricing-card { padding: 2rem; }
             .form-card { padding: 1.5rem; }
-            .form-row { grid-template-columns: 1fr; }
             .footer-inner {
                 flex-direction: column; gap: 0.8rem;
                 text-align: center;

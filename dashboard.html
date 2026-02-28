@@ -791,14 +791,60 @@
         const resp = await fetch(url);
         if (!resp.ok) throw new Error(`Erreur ${resp.status}`);
         const text = await resp.text();
-        return csvToObjects(parseCSV(text));
+        console.log('[Dashboard] CSV brut (100 premiers chars) :', text.substring(0, 200));
+        const rows = parseCSV(text);
+        console.log('[Dashboard] En-têtes détectés :', rows[0]);
+        return csvToObjects(rows);
+    }
+
+    // ── ROBUST NUMBER PARSER (handles Google Finance / French & English formats) ──
+    function num(v) {
+        let s = String(v == null ? '' : v).trim();
+        // Google Finance error values
+        if (!s || s === '—' || s === '-' || /^(#|Loading|N\/A|ERROR|Chargement)/i.test(s)) return 0;
+        // Strip currency symbols, spaces, % signs, and other non-numeric chars
+        s = s.replace(/[^\d.,-]/g, '');
+        if (!s) return 0;
+
+        const lastComma = s.lastIndexOf(',');
+        const lastDot = s.lastIndexOf('.');
+        const commaCount = (s.match(/,/g) || []).length;
+        const dotCount = (s.match(/\./g) || []).length;
+
+        if (commaCount > 0 && dotCount > 0) {
+            if (lastComma > lastDot) {
+                // French: 1.234,56 → comma is decimal
+                s = s.replace(/\./g, '').replace(',', '.');
+            } else {
+                // English: 1,234.56 → dot is decimal
+                s = s.replace(/,/g, '');
+            }
+        } else if (commaCount > 1) {
+            // Multiple commas = thousands separators: 1,234,567
+            s = s.replace(/,/g, '');
+        } else if (commaCount === 1) {
+            const afterComma = s.substring(lastComma + 1);
+            if (afterComma.length === 3 && !afterComma.includes('.')) {
+                // 1,234 → likely thousands separator
+                s = s.replace(',', '');
+            } else {
+                // 1234,56 or 0,5 → comma is decimal
+                s = s.replace(',', '.');
+            }
+        } else if (dotCount > 1) {
+            // Multiple dots = thousands separators: 1.234.567
+            s = s.replace(/\./g, '');
+        }
+
+        const n = parseFloat(s);
+        return isNaN(n) ? 0 : n;
     }
 
     // ── MAP SHEET DATA TO POSITIONS ──
     function mapSheetToPositions(objs) {
+        console.log('[Dashboard] Données brutes du Google Sheet :', objs.slice(0, 3));
         return objs.map(o => {
-            const num = (v) => { const n = parseFloat(String(v).replace(/[^\d.,-]/g, '').replace(',', '.')); return isNaN(n) ? 0 : n; };
-            return {
+            const pos = {
                 compte: o.compte || o.type || '',
                 classe: o.classe || o.class || o.categorie || '',
                 nom: o.nom || o.name || '',
@@ -810,6 +856,12 @@
                 perf2025: num(o.perf_2025 || o['2025'] || 0),
                 perf2024: num(o.perf_2024 || o['2024'] || 0),
             };
+            // Warn if current price looks wrong
+            if (pos.nom && pos.coursActuel === 0 && pos.compte !== 'Crypto') {
+                const raw = o.cours_actuel || o.cours || o.prix || o.price || '';
+                if (raw && raw !== '0') console.warn(`[Dashboard] Cours non parsé pour "${pos.nom}" : valeur brute = "${raw}"`);
+            }
+            return pos;
         }).filter(p => p.nom && p.compte);
     }
 
@@ -1393,17 +1445,23 @@
             try {
                 const sheetData = await fetchSheet(GOOGLE_SHEET_ID, SHEET_NAME);
                 positions = mapSheetToPositions(sheetData);
-                if (positions.length === 0) throw new Error('Aucune position trouvée');
+                if (positions.length === 0) throw new Error('Aucune position trouvée dans le Sheet. Vérifiez les colonnes : compte, nom, ticker, quantite, prix_achat, cours_actuel');
             } catch (e) {
                 document.getElementById('mainContent').innerHTML = `
                 <div class="error-box" style="margin-top:3rem">
                     <p>Impossible de charger les données</p>
-                    <small>${esc(e.message)}<br>Vérifiez que votre Google Sheet est publié sur le web et que l'ID est correct.</small>
+                    <small>${esc(e.message)}<br>Vérifiez que votre Google Sheet est publié sur le web et que l'ID est correct.<br>Ouvrez la console (F12) pour plus de détails.</small>
                 </div>`;
                 return;
             }
         } else {
             positions = DEMO_DATA.map(d => ({ ...d }));
+        }
+
+        // Check for positions with unparsed prices (likely Google Finance issues)
+        const unparsed = positions.filter(p => p.coursActuel === 0 && p.compte !== 'Crypto');
+        if (unparsed.length > 0) {
+            console.warn('[Dashboard] Positions avec cours à 0 (formules Google Finance non résolues ?) :', unparsed.map(p => p.nom));
         }
 
         const cryptoData = await fetchCryptoPrices(positions);

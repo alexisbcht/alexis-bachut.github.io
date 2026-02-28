@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Tableau de Bord Investissements</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* ── VARIABLES ── */
+        :root {
+            --bg: #0f1117;
+            --bg-card: #1a1d27;
+            --bg-card-hover: #1f2233;
+            --bg-input: #151821;
+            --border: rgba(255,255,255,0.08);
+            --border-light: rgba(255,255,255,0.04);
+            --text: #f0f0f5;
+            --text-sec: #8b8fa3;
+            --text-muted: #5a5e72;
+            --green: #00d68f;
+            --green-bg: rgba(0,214,143,0.1);
+            --red: #ff4d6a;
+            --red-bg: rgba(255,77,106,0.1);
+            --accent: #6c5ce7;
+            --accent-light: #a29bfe;
+            --chart-1: #6c5ce7;
+            --chart-2: #00d68f;
+            --chart-3: #f7b731;
+            --chart-4: #3498db;
+            --chart-5: #e84393;
+            --chart-6: #00cec9;
+            --font: 'Inter', system-ui, -apple-system, sans-serif;
+            --mono: 'DM Mono', 'SF Mono', monospace;
+            --radius: 12px;
+            --radius-sm: 8px;
+        }
+
+        /* ── RESET ── */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        /* ── LAYOUT ── */
+        .wrap {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* ── HEADER ── */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(15,17,23,0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 0;
+        }
+        .header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header-title {
+            font-family: var(--mono);
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-sec);
+        }
+        .header-updated {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* ── SECTION TITLES ── */
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            color: var(--text);
+        }
+        section { margin-bottom: 2.5rem; }
+
+        /* ── LOADING / ERROR ── */
+        .loading-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            gap: 1.5rem;
+        }
+        .spinner {
+            width: 40px; height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { color: var(--text-sec); font-size: 0.95rem; }
+
+        .error-box {
+            background: var(--red-bg);
+            border: 1px solid rgba(255,77,106,0.2);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            text-align: center;
+            color: var(--red);
+        }
+        .error-box p { margin-bottom: 0.5rem; }
+        .error-box small { color: var(--text-muted); }
+
+        .demo-banner {
+            background: rgba(108,92,231,0.1);
+            border: 1px solid rgba(108,92,231,0.2);
+            border-radius: var(--radius-sm);
+            padding: 0.8rem 1.2rem;
+            margin: 1rem 0 1.5rem;
+            font-size: 0.85rem;
+            color: var(--accent-light);
+            text-align: center;
+        }
+
+        /* ── PATRIMOINE HERO ── */
+        .patrimoine-card {
+            background: linear-gradient(135deg, #1a1d27 0%, #1f1835 100%);
+            border: 1px solid rgba(108,92,231,0.15);
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+        .patrimoine-label {
+            font-size: 0.85rem;
+            color: var(--text-sec);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 0.5rem;
+        }
+        .patrimoine-value {
+            font-family: var(--mono);
+            font-size: clamp(2.2rem, 5vw, 3.2rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        .patrimoine-details {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        .patrimoine-detail {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+        .detail-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .detail-value {
+            font-family: var(--mono);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        .perf-badges {
+            display: flex;
+            justify-content: center;
+            gap: 0.6rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        .perf-badge {
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            padding: 0.3rem 0.7rem;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .perf-badge-label {
+            font-family: var(--font);
+            color: var(--text-muted);
+        }
+
+        /* ── CARDS GRID ── */
+        .accounts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            transition: background 0.2s;
+        }
+        .card:hover { background: var(--bg-card-hover); }
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 1rem;
+        }
+        .card-icon {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .card-icon svg { width: 18px; height: 18px; }
+        .card-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-sec);
+        }
+        .card-value {
+            font-family: var(--mono);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+        .card-gain {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: var(--mono);
+            font-size: 0.8rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            margin-bottom: 0.8rem;
+        }
+        .gain-positive { background: var(--green-bg); color: var(--green); }
+        .gain-negative { background: var(--red-bg); color: var(--red); }
+        .card-invested {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            padding-top: 0.8rem;
+            border-top: 1px solid var(--border-light);
+        }
+        .invested-value { font-family: var(--mono); color: var(--text-sec); }
+        .card-sparkline {
+            margin-top: 0.8rem;
+            height: 40px;
+        }
+        .card-sparkline canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* ── TOP/FLOP ── */
+        .topflop {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        .topflop-col {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.2rem;
+        }
+        .topflop-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.8rem;
+        }
+        .topflop-title.top { color: var(--green); }
+        .topflop-title.flop { color: var(--red); }
+        .topflop-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .topflop-item:last-child { border-bottom: none; }
+        .topflop-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .topflop-perf {
+            font-family: var(--mono);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* ── CHARTS ── */
+        .charts-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        .chart-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+        }
+        .chart-card .section-title { margin-bottom: 1rem; }
+        .chart-layout {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .chart-canvas-wrap {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            flex-shrink: 0;
+        }
+        .chart-canvas-wrap canvas {
+            width: 100%;
+            height: 100%;
+        }
+        .chart-center {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        .chart-center-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        .chart-center-value {
+            font-family: var(--mono);
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+        .chart-legend { flex: 1; }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.4rem 0;
+            font-size: 0.82rem;
+        }
+        .legend-dot {
+            width: 10px; height: 10px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+        .legend-name { flex: 1; color: var(--text-sec); }
+        .legend-pct {
+            font-family: var(--mono);
+            font-weight: 500;
+            min-width: 3rem;
+            text-align: right;
+        }
+        .legend-val {
+            font-family: var(--mono);
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            min-width: 5rem;
+            text-align: right;
+        }
+
+        /* ── CRYPTO SECTION ── */
+        .crypto-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.7rem;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .status-live {
+            background: var(--green-bg);
+            color: var(--green);
+        }
+        .status-error {
+            background: var(--red-bg);
+            color: var(--red);
+        }
+        .status-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        .crypto-total-bar {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+        }
+        .crypto-total-label { font-size: 0.85rem; color: var(--text-sec); }
+        .crypto-total-value { font-family: var(--mono); font-size: 1.2rem; font-weight: 600; }
+        .crypto-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 0.8rem;
+        }
+        .crypto-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: background 0.2s;
+        }
+        .crypto-card:hover { background: var(--bg-card-hover); }
+        .crypto-symbol {
+            font-family: var(--mono);
+            font-weight: 600;
+            font-size: 0.95rem;
+            width: 50px;
+        }
+        .crypto-details { flex: 1; }
+        .crypto-price {
+            font-family: var(--mono);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .crypto-change {
+            font-family: var(--mono);
+            font-size: 0.75rem;
+        }
+        .crypto-val {
+            text-align: right;
+        }
+        .crypto-holding {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        .crypto-value {
+            font-family: var(--mono);
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+        .shimmer {
+            background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-card-hover) 50%, var(--bg-card) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: var(--radius-sm);
+            height: 48px;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* ── TABLE ── */
+        .table-wrap {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            white-space: nowrap;
+            font-size: 0.83rem;
+        }
+        .data-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+        .data-table th {
+            background: var(--bg-input);
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-size: 0.72rem;
+            padding: 0.7rem 1rem;
+            text-align: left;
+            cursor: pointer;
+            user-select: none;
+            border-bottom: 1px solid var(--border);
+            transition: color 0.2s;
+        }
+        .data-table th:hover { color: var(--text); }
+        .data-table th.sorted { color: var(--accent-light); }
+        .sort-arrow {
+            display: inline-block;
+            margin-left: 0.3rem;
+            font-size: 0.65rem;
+        }
+        .data-table td {
+            padding: 0.65rem 1rem;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-sec);
+        }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:hover td { background: rgba(255,255,255,0.02); }
+        .td-name {
+            color: var(--text);
+            font-weight: 500;
+        }
+        .td-compte {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .td-mono {
+            font-family: var(--mono);
+            font-size: 0.82rem;
+        }
+
+        /* ── EVOLUTION CHART ── */
+        .evolution-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+        }
+        .evolution-canvas-wrap {
+            width: 100%;
+            height: 250px;
+            position: relative;
+        }
+        .evolution-canvas-wrap canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .evolution-empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* ── FOOTER ── */
+        .footer {
+            padding: 2rem 0;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-light);
+            margin-top: 2rem;
+        }
+
+        /* ── UTILITIES ── */
+        .text-green { color: var(--green); }
+        .text-red { color: var(--red); }
+        .text-muted { color: var(--text-muted); }
+        .hidden { display: none !important; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            .accounts-grid { grid-template-columns: 1fr; }
+            .topflop { grid-template-columns: 1fr; }
+            .charts-row { grid-template-columns: 1fr; }
+            .chart-layout { flex-direction: column; }
+            .chart-canvas-wrap { width: 160px; height: 160px; }
+            .patrimoine-details { gap: 1rem; }
+            .patrimoine-card { padding: 1.5rem; }
+            .card-value { font-size: 1.3rem; }
+            .evolution-canvas-wrap { height: 200px; }
+        }
+        @media (max-width: 480px) {
+            .wrap { padding: 0 1rem; }
+            .patrimoine-value { font-size: 1.8rem; }
+            .patrimoine-details { flex-direction: column; align-items: center; }
+            .card { padding: 1.2rem; }
+            .crypto-grid { grid-template-columns: 1fr; }
+            .perf-badges { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="wrap header-inner">
+            <span class="header-title">Tableau de Bord</span>
+            <span class="header-updated" id="lastUpdated"></span>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="wrap" id="mainContent">
+        <!-- Loading state -->
+        <div class="loading-screen" id="loadingScreen">
+            <div class="spinner"></div>
+            <span class="loading-text">Chargement des données...</span>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="wrap">Tableau de bord personnel</div>
+    </footer>
+
+    <script>
+    // ╔══════════════════════════════════════════════════════════════╗
+    // ║    CONFIGURATION — MODIFIER ICI UNIQUEMENT                  ║
+    // ╚══════════════════════════════════════════════════════════════╝
+    //
+    // Collez ci-dessous l'ID de votre Google Sheet.
+    // C'est la longue suite de caractères dans l'URL de votre Sheet,
+    // entre /d/ et /edit
+    //
+    // Exemple : si l'URL de votre Sheet est :
+    // https://docs.google.com/spreadsheets/d/1aBcDeFgHiJkLmNoPqRsTuVwXyZ/edit
+    // alors l'ID est : 1aBcDeFgHiJkLmNoPqRsTuVwXyZ
+    //
+    // Laissez vide ("") pour voir les données de démonstration.
+    //
+    const GOOGLE_SHEET_ID = "1QdEf5cVCrIMzUb9wUha84AEc9ZIXgBmBt6OByuacLEA";
+
+    // Nom de l'onglet dans votre Google Sheet (par défaut "Portefeuille")
+    const SHEET_NAME = "Portefeuille";
+
+    // ╔══════════════════════════════════════════════════════════════╗
+    // ║    NE PAS MODIFIER EN DESSOUS DE CETTE LIGNE                ║
+    // ╚══════════════════════════════════════════════════════════════╝
+
+    // ── CONSTANTES ──
+    const CHART_COLORS = ['#6c5ce7','#00d68f','#f7b731','#3498db','#e84393','#00cec9','#fd79a8','#a29bfe'];
+    const MONTHS_FR = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+
+    const CRYPTO_MAP = {
+        'BTC':'bitcoin','ETH':'ethereum','SOL':'solana','ADA':'cardano',
+        'DOT':'polkadot','AVAX':'avalanche-2','MATIC':'matic-network',
+        'LINK':'chainlink','UNI':'uniswap','ATOM':'cosmos','NEAR':'near',
+        'APT':'aptos','ARB':'arbitrum','OP':'optimism','FTM':'fantom',
+        'DOGE':'dogecoin','SHIB':'shiba-inu','XRP':'ripple','LTC':'litecoin',
+        'BCH':'bitcoin-cash','AAVE':'aave','MKR':'maker','CRV':'curve-dao-token',
+        'SNX':'havven','COMP':'compound-governance-token','GRT':'the-graph',
+        'FIL':'filecoin','ALGO':'algorand','ICP':'internet-computer',
+        'HBAR':'hedera-hashgraph','VET':'vechain','EGLD':'elrond-erd-2',
+        'SAND':'the-sandbox','MANA':'decentraland','AXS':'axie-infinity',
+        'ENS':'ethereum-name-service','LDO':'lido-dao','RPL':'rocket-pool',
+        'SSV':'ssv-network','PENDLE':'pendle','ENA':'ethena','SUI':'sui',
+        'SEI':'sei-network','TIA':'celestia','JUP':'jupiter-exchange-solana',
+        'WIF':'dogwifcoin','BONK':'bonk','PEPE':'pepe','RENDER':'render-token',
+        'INJ':'injective-protocol','STX':'blockstack','KAS':'kaspa',
+        'TAO':'bittensor','FET':'fetch-ai','RNDR':'render-token',
+        'JASMY':'jasmycoin','POL':'polygon-ecosystem-token',
+    };
+
+    const ACCOUNT_ICONS = {
+        'PEA': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
+        'Assurance Vie': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+        'PEE': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 00-8 0v2"/></svg>',
+        'Crypto': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r="0.5"/></svg>',
+    };
+
+    const ACCOUNT_COLORS = {
+        'PEA': '#6c5ce7',
+        'Assurance Vie': '#00d68f',
+        'PEE': '#3498db',
+        'Crypto': '#f7b731',
+    };
+
+    // ── DEMO DATA ──
+    const DEMO_DATA = [
+        { compte:'PEA', classe:'Action', nom:'LVMH', ticker:'EPA:MC', quantite:5, prixAchat:750, coursActuel:820, perfYTD:8.5, perf2025:12.3, perf2024:5.1 },
+        { compte:'PEA', classe:'ETF', nom:'Amundi MSCI World', ticker:'CW8.PA', quantite:30, prixAchat:420, coursActuel:485, perfYTD:6.2, perf2025:18.5, perf2024:22.1 },
+        { compte:'PEA', classe:'Action', nom:'TotalEnergies', ticker:'EPA:TTE', quantite:20, prixAchat:55, coursActuel:58.3, perfYTD:3.8, perf2025:7.2, perf2024:-2.5 },
+        { compte:'PEA', classe:'ETF', nom:'Amundi S&P 500', ticker:'500.PA', quantite:15, prixAchat:90, coursActuel:108, perfYTD:5.1, perf2025:20.3, perf2024:24.5 },
+        { compte:'Assurance Vie', classe:'Fonds Euro', nom:'Fonds Euro Linxea', ticker:'MANUAL', quantite:1, prixAchat:10000, coursActuel:10350, perfYTD:1.2, perf2025:3.5, perf2024:3.0 },
+        { compte:'Assurance Vie', classe:'ETF', nom:'iShares MSCI World', ticker:'IWDA.AS', quantite:10, prixAchat:78, coursActuel:88, perfYTD:4.8, perf2025:16.2, perf2024:20.8 },
+        { compte:'Assurance Vie', classe:'OPCVM', nom:'Comgest Monde', ticker:'FR0000284689', quantite:8, prixAchat:320, coursActuel:345, perfYTD:3.1, perf2025:9.8, perf2024:11.2 },
+        { compte:'PEE', classe:'OPCVM', nom:'Amundi Label Equilibre', ticker:'MANUAL', quantite:1, prixAchat:8000, coursActuel:8750, perfYTD:2.8, perf2025:6.5, perf2024:8.3 },
+        { compte:'Crypto', classe:'Crypto', nom:'Bitcoin', ticker:'BTC', quantite:0.15, prixAchat:45000, coursActuel:0, perfYTD:0, perf2025:0, perf2024:0 },
+        { compte:'Crypto', classe:'Crypto', nom:'Ethereum', ticker:'ETH', quantite:1.5, prixAchat:2800, coursActuel:0, perfYTD:0, perf2025:0, perf2024:0 },
+        { compte:'Crypto', classe:'Crypto', nom:'Solana', ticker:'SOL', quantite:10, prixAchat:120, coursActuel:0, perfYTD:0, perf2025:0, perf2024:0 },
+    ];
+
+    // ── UTILITY FUNCTIONS ──
+    function esc(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    function formatEuro(n) {
+        if (n == null || isNaN(n)) return '—';
+        return new Intl.NumberFormat('fr-FR', { style:'currency', currency:'EUR', minimumFractionDigits:0, maximumFractionDigits:0 }).format(n);
+    }
+    function formatEuroDec(n) {
+        if (n == null || isNaN(n)) return '—';
+        return new Intl.NumberFormat('fr-FR', { style:'currency', currency:'EUR', minimumFractionDigits:2, maximumFractionDigits:2 }).format(n);
+    }
+    function formatPct(v) {
+        if (v == null || isNaN(v)) return '—';
+        const sign = v >= 0 ? '+' : '';
+        return sign + v.toFixed(2).replace('.', ',') + ' %';
+    }
+    function formatMonthLabel(dateStr) {
+        if (!dateStr) return '';
+        const d = new Date(dateStr);
+        return MONTHS_FR[d.getMonth()] + ' ' + d.getFullYear();
+    }
+
+    // ── CSV PARSER ──
+    function parseCSV(text) {
+        const lines = [];
+        let current = '';
+        let inQuote = false;
+        for (let i = 0; i < text.length; i++) {
+            const ch = text[i];
+            if (inQuote) {
+                if (ch === '"' && text[i+1] === '"') { current += '"'; i++; }
+                else if (ch === '"') { inQuote = false; }
+                else { current += ch; }
+            } else {
+                if (ch === '"') { inQuote = true; }
+                else if (ch === ',') { lines.push(current); current = ''; }
+                else if (ch === '\n' || (ch === '\r' && text[i+1] === '\n')) {
+                    lines.push(current); current = '';
+                    if (ch === '\r') i++;
+                    lines.push(null); // row separator
+                } else { current += ch; }
+            }
+        }
+        if (current) lines.push(current);
+
+        const rows = [];
+        let row = [];
+        for (const val of lines) {
+            if (val === null) {
+                if (row.length > 0) rows.push(row);
+                row = [];
+            } else {
+                row.push(val.trim());
+            }
+        }
+        if (row.length > 0) rows.push(row);
+        return rows;
+    }
+
+    function csvToObjects(rows) {
+        if (rows.length < 2) return [];
+        const headers = rows[0].map(h => h.toLowerCase().replace(/[^a-z0-9]/g, '_'));
+        return rows.slice(1).filter(r => r.length >= headers.length && r[0]).map(r => {
+            const obj = {};
+            headers.forEach((h, i) => { obj[h] = r[i] || ''; });
+            return obj;
+        });
+    }
+
+    // ── GOOGLE SHEETS FETCH ──
+    async function fetchSheet(sheetId, sheetName) {
+        const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error(`Erreur ${resp.status}`);
+        const text = await resp.text();
+        return csvToObjects(parseCSV(text));
+    }
+
+    // ── MAP SHEET DATA TO POSITIONS ──
+    function mapSheetToPositions(objs) {
+        return objs.map(o => {
+            const num = (v) => { const n = parseFloat(String(v).replace(/[^\d.,-]/g, '').replace(',', '.')); return isNaN(n) ? 0 : n; };
+            return {
+                compte: o.compte || o.type || '',
+                classe: o.classe || o.class || o.categorie || '',
+                nom: o.nom || o.name || '',
+                ticker: o.ticker || o.symbole || o.symbol || '',
+                quantite: num(o.quantite || o.quantit_ || o.qty || 0),
+                prixAchat: num(o.prix_achat || o.prix_d_achat || o.pru || o.achat || 0),
+                coursActuel: num(o.cours_actuel || o.cours || o.prix || o.price || 0),
+                perfYTD: num(o.perf_ytd || o.ytd || 0),
+                perf2025: num(o.perf_2025 || o['2025'] || 0),
+                perf2024: num(o.perf_2024 || o['2024'] || 0),
+            };
+        }).filter(p => p.nom && p.compte);
+    }
+
+    // ── COINGECKO API ──
+    async function fetchCryptoPrices(positions) {
+        const cryptoPositions = positions.filter(p => p.compte === 'Crypto');
+        if (cryptoPositions.length === 0) return { prices: {}, changes: {}, ok: true };
+
+        const ids = cryptoPositions.map(p => {
+            const sym = p.ticker.toUpperCase();
+            return CRYPTO_MAP[sym] || sym.toLowerCase();
+        }).filter(Boolean);
+
+        if (ids.length === 0) return { prices: {}, changes: {}, ok: true };
+
+        try {
+            const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids.join(',')}&vs_currencies=eur&include_24hr_change=true`;
+            const resp = await fetch(url);
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const data = await resp.json();
+
+            const prices = {};
+            const changes = {};
+            for (const [id, info] of Object.entries(data)) {
+                prices[id] = info.eur;
+                changes[id] = info.eur_24h_change || 0;
+            }
+            return { prices, changes, ok: true };
+        } catch (e) {
+            console.warn('CoinGecko API error:', e);
+            return { prices: {}, changes: {}, ok: false };
+        }
+    }
+
+    function applyCryptoPrices(positions, cryptoData) {
+        positions.forEach(p => {
+            if (p.compte !== 'Crypto') return;
+            const sym = p.ticker.toUpperCase();
+            const id = CRYPTO_MAP[sym] || sym.toLowerCase();
+            if (cryptoData.prices[id] != null) {
+                p.coursActuel = cryptoData.prices[id];
+                p.change24h = cryptoData.changes[id] || 0;
+            }
+        });
+    }
+
+    // ── CALCULATIONS ──
+    function calcPositionValues(positions) {
+        positions.forEach(p => {
+            p.investi = p.quantite * p.prixAchat;
+            p.valeur = p.quantite * p.coursActuel;
+            p.gainEuro = p.valeur - p.investi;
+            p.gainPct = p.investi > 0 ? (p.gainEuro / p.investi) * 100 : 0;
+        });
+    }
+
+    function aggregateByCompte(positions) {
+        const map = {};
+        positions.forEach(p => {
+            if (!map[p.compte]) map[p.compte] = { nom: p.compte, investi: 0, valeur: 0 };
+            map[p.compte].investi += p.investi;
+            map[p.compte].valeur += p.valeur;
+        });
+        for (const c of Object.values(map)) {
+            c.gainEuro = c.valeur - c.investi;
+            c.gainPct = c.investi > 0 ? (c.gainEuro / c.investi) * 100 : 0;
+        }
+        return map;
+    }
+
+    function aggregateByClasse(positions) {
+        const map = {};
+        positions.forEach(p => {
+            const cl = p.classe || 'Autre';
+            if (!map[cl]) map[cl] = { nom: cl, valeur: 0 };
+            map[cl].valeur += p.valeur;
+        });
+        return map;
+    }
+
+    // ── LOCALSTORAGE HISTORY ──
+    const HISTORY_KEY = 'dashboard_history';
+    function loadHistory() {
+        try {
+            return JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+        } catch { return []; }
+    }
+    function saveSnapshot(total) {
+        const history = loadHistory();
+        const today = new Date().toISOString().slice(0, 10);
+        const existing = history.findIndex(h => h.date === today);
+        if (existing >= 0) {
+            history[existing].total = total;
+        } else {
+            history.push({ date: today, total: total });
+        }
+        // Keep max 365 days
+        while (history.length > 365) history.shift();
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    }
+
+    // ── RENDERING ──
+    function renderDashboard(positions, cryptoData) {
+        calcPositionValues(positions);
+        const comptes = aggregateByCompte(positions);
+        const classes = aggregateByClasse(positions);
+
+        const totalInvesti = positions.reduce((s, p) => s + p.investi, 0);
+        const totalValeur = positions.reduce((s, p) => s + p.valeur, 0);
+        const totalGain = totalValeur - totalInvesti;
+        const totalPct = totalInvesti > 0 ? (totalGain / totalInvesti) * 100 : 0;
+
+        // Save today's snapshot
+        if (totalValeur > 0) saveSnapshot(totalValeur);
+
+        const isDemo = !GOOGLE_SHEET_ID;
+        const isPositive = totalGain >= 0;
+        const history = loadHistory();
+
+        // Compute aggregate perfs
+        const allPerfs = positions.filter(p => p.valeur > 0);
+        const weightedPerfYTD = allPerfs.reduce((s, p) => s + p.perfYTD * p.valeur, 0) / (totalValeur || 1);
+        const weightedPerf2025 = allPerfs.reduce((s, p) => s + p.perf2025 * p.valeur, 0) / (totalValeur || 1);
+        const weightedPerf2024 = allPerfs.reduce((s, p) => s + p.perf2024 * p.valeur, 0) / (totalValeur || 1);
+
+        // Top / Flop
+        const sortedByPerf = [...positions].filter(p => (p.investi > 0 && p.compte !== 'Crypto') || (p.compte === 'Crypto' && cryptoData.ok && p.coursActuel > 0));
+        sortedByPerf.sort((a, b) => b.gainPct - a.gainPct);
+        const top3 = sortedByPerf.slice(0, 3);
+        const flop3 = sortedByPerf.slice(-3).reverse();
+
+        const main = document.getElementById('mainContent');
+        main.innerHTML = '';
+
+        // ── Demo banner ──
+        if (isDemo) {
+            main.innerHTML += `<div class="demo-banner">Mode démonstration — Configurez votre Google Sheet ID en haut du fichier pour voir vos vraies données</div>`;
+        }
+
+        // ── Patrimoine Total ──
+        main.innerHTML += `
+        <section class="patrimoine">
+            <div class="patrimoine-card">
+                <div class="patrimoine-label">Patrimoine total</div>
+                <div class="patrimoine-value">${formatEuro(totalValeur)}</div>
+                <div class="patrimoine-details">
+                    <div class="patrimoine-detail">
+                        <span class="detail-label">Investi</span>
+                        <span class="detail-value td-mono">${formatEuro(totalInvesti)}</span>
+                    </div>
+                    <div class="patrimoine-detail">
+                        <span class="detail-label">Plus-value</span>
+                        <span class="detail-value td-mono ${isPositive ? 'text-green' : 'text-red'}">${isPositive ? '+' : ''}${formatEuro(totalGain)}</span>
+                    </div>
+                    <div class="patrimoine-detail">
+                        <span class="detail-label">Performance</span>
+                        <span class="detail-value td-mono ${isPositive ? 'text-green' : 'text-red'}">${formatPct(totalPct)}</span>
+                    </div>
+                </div>
+                <div class="perf-badges">
+                    <span class="perf-badge ${weightedPerfYTD >= 0 ? 'gain-positive' : 'gain-negative'}">
+                        <span class="perf-badge-label">YTD</span> ${formatPct(weightedPerfYTD)}
+                    </span>
+                    <span class="perf-badge ${weightedPerf2025 >= 0 ? 'gain-positive' : 'gain-negative'}">
+                        <span class="perf-badge-label">2025</span> ${formatPct(weightedPerf2025)}
+                    </span>
+                    <span class="perf-badge ${weightedPerf2024 >= 0 ? 'gain-positive' : 'gain-negative'}">
+                        <span class="perf-badge-label">2024</span> ${formatPct(weightedPerf2024)}
+                    </span>
+                </div>
+                ${!cryptoData.ok ? '<div style="margin-top:0.8rem;font-size:0.78rem;color:var(--text-muted)">* Hors crypto (prix indisponibles)</div>' : ''}
+            </div>
+        </section>`;
+
+        // ── Account Cards ──
+        const compteOrder = ['PEA', 'Assurance Vie', 'PEE', 'Crypto'];
+        let cardsHtml = '';
+        compteOrder.forEach((cName, idx) => {
+            const c = comptes[cName];
+            if (!c) return;
+            const pos = c.gainEuro >= 0;
+            const color = ACCOUNT_COLORS[cName] || CHART_COLORS[idx];
+            const icon = ACCOUNT_ICONS[cName] || '';
+            const sparkId = `spark-${cName.replace(/\s/g, '')}`;
+            cardsHtml += `
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon" style="background:${color}22;color:${color}">${icon}</div>
+                    <span class="card-name">${cName === 'PEA' ? 'PEA Fortuneo' : cName === 'Assurance Vie' ? 'Assurance Vie Linxea' : cName === 'PEE' ? 'PEE Amundi' : cName}</span>
+                </div>
+                <div class="card-value">${formatEuro(c.valeur)}</div>
+                <div class="card-gain ${pos ? 'gain-positive' : 'gain-negative'}">
+                    <span>${pos ? '+' : ''}${formatEuro(c.gainEuro)}</span>
+                    <span>${formatPct(c.gainPct)}</span>
+                </div>
+                <div class="card-invested">
+                    <span>Investi</span>
+                    <span class="invested-value">${formatEuro(c.investi)}</span>
+                </div>
+            </div>`;
+        });
+        main.innerHTML += `
+        <section>
+            <h2 class="section-title">Mes Comptes</h2>
+            <div class="accounts-grid">${cardsHtml}</div>
+        </section>`;
+
+        // ── Top / Flop ──
+        let topHtml = '', flopHtml = '';
+        top3.forEach(p => {
+            topHtml += `<div class="topflop-item"><span class="topflop-name">${esc(p.nom)}</span><span class="topflop-perf text-green">${formatPct(p.gainPct)}</span></div>`;
+        });
+        flop3.forEach(p => {
+            flopHtml += `<div class="topflop-item"><span class="topflop-name">${esc(p.nom)}</span><span class="topflop-perf text-red">${formatPct(p.gainPct)}</span></div>`;
+        });
+        main.innerHTML += `
+        <section>
+            <h2 class="section-title">Top / Flop</h2>
+            <div class="topflop">
+                <div class="topflop-col"><div class="topflop-title top">Meilleures performances</div>${topHtml}</div>
+                <div class="topflop-col"><div class="topflop-title flop">Moins bonnes performances</div>${flopHtml}</div>
+            </div>
+        </section>`;
+
+        // ── Allocation Charts ──
+        const compteSegments = compteOrder.filter(c => comptes[c]).map((c, i) => ({
+            nom: c, valeur: comptes[c].valeur, couleur: ACCOUNT_COLORS[c] || CHART_COLORS[i]
+        }));
+        const classeKeys = Object.keys(classes);
+        const classeSegments = classeKeys.map((c, i) => ({
+            nom: c, valeur: classes[c].valeur, couleur: CHART_COLORS[i % CHART_COLORS.length]
+        }));
+
+        main.innerHTML += `
+        <section>
+            <div class="charts-row">
+                <div class="chart-card">
+                    <h2 class="section-title">Répartition par compte</h2>
+                    <div class="chart-layout">
+                        <div class="chart-canvas-wrap">
+                            <canvas id="donutCompte"></canvas>
+                            <div class="chart-center">
+                                <div class="chart-center-label">Total</div>
+                                <div class="chart-center-value">${formatEuro(totalValeur)}</div>
+                            </div>
+                        </div>
+                        <div class="chart-legend" id="legendCompte"></div>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h2 class="section-title">Répartition par classe</h2>
+                    <div class="chart-layout">
+                        <div class="chart-canvas-wrap">
+                            <canvas id="donutClasse"></canvas>
+                            <div class="chart-center">
+                                <div class="chart-center-label">Total</div>
+                                <div class="chart-center-value">${formatEuro(totalValeur)}</div>
+                            </div>
+                        </div>
+                        <div class="chart-legend" id="legendClasse"></div>
+                    </div>
+                </div>
+            </div>
+        </section>`;
+
+        // ── Crypto Section ──
+        const cryptoPositions = positions.filter(p => p.compte === 'Crypto');
+        if (cryptoPositions.length > 0) {
+            const totalCrypto = cryptoPositions.reduce((s, p) => s + p.valeur, 0);
+            let cryptoCardsHtml = '';
+            cryptoPositions.forEach(p => {
+                const chg = p.change24h || 0;
+                const chgPos = chg >= 0;
+                cryptoCardsHtml += `
+                <div class="crypto-card">
+                    <span class="crypto-symbol">${esc(p.ticker)}</span>
+                    <div class="crypto-details">
+                        <div class="crypto-price">${p.coursActuel > 0 ? formatEuroDec(p.coursActuel) : '—'}</div>
+                        <div class="crypto-change ${chgPos ? 'text-green' : 'text-red'}">${cryptoData.ok && p.coursActuel > 0 ? formatPct(chg) + ' (24h)' : ''}</div>
+                    </div>
+                    <div class="crypto-val">
+                        <div class="crypto-holding">${p.quantite} ${esc(p.ticker)}</div>
+                        <div class="crypto-value">${p.valeur > 0 ? formatEuro(p.valeur) : '—'}</div>
+                    </div>
+                </div>`;
+            });
+            main.innerHTML += `
+            <section>
+                <div class="crypto-header">
+                    <h2 class="section-title" style="margin:0">Cryptomonnaies</h2>
+                    <span class="status-badge ${cryptoData.ok ? 'status-live' : 'status-error'}">
+                        <span class="status-dot"></span>
+                        ${cryptoData.ok ? 'Prix en direct' : 'Prix indisponibles'}
+
+                    </span>
+                </div>
+                <div class="crypto-total-bar">
+                    <span class="crypto-total-label">Total Crypto</span>
+                    <span class="crypto-total-value">${cryptoData.ok ? formatEuro(totalCrypto) : '—'}</span>
+                </div>
+                <div class="crypto-grid">${cryptoCardsHtml}</div>
+            </section>`;
+        }
+
+        // ── Detailed Table ──
+        main.innerHTML += `
+        <section>
+            <h2 class="section-title">Toutes les positions</h2>
+            <div class="table-wrap">
+                <table class="data-table" id="positionsTable">
+                    <thead>
+                        <tr>
+                            <th data-col="compte">Compte <span class="sort-arrow"></span></th>
+                            <th data-col="nom">Nom <span class="sort-arrow"></span></th>
+                            <th data-col="classe">Classe <span class="sort-arrow"></span></th>
+                            <th data-col="quantite">Qte <span class="sort-arrow"></span></th>
+                            <th data-col="prixAchat">PRU <span class="sort-arrow"></span></th>
+                            <th data-col="coursActuel">Cours <span class="sort-arrow"></span></th>
+                            <th data-col="investi">Investi <span class="sort-arrow"></span></th>
+                            <th data-col="valeur">Valeur <span class="sort-arrow"></span></th>
+                            <th data-col="gainEuro">+/- € <span class="sort-arrow"></span></th>
+                            <th data-col="gainPct">+/- % <span class="sort-arrow"></span></th>
+                            <th data-col="perfYTD">YTD <span class="sort-arrow"></span></th>
+                            <th data-col="perf2025">2025 <span class="sort-arrow"></span></th>
+                            <th data-col="perf2024">2024 <span class="sort-arrow"></span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </section>`;
+
+        // ── Evolution Chart ──
+        main.innerHTML += `
+        <section>
+            <h2 class="section-title">Évolution du patrimoine</h2>
+            <div class="evolution-card">
+                ${history.length >= 2
+                    ? '<div class="evolution-canvas-wrap"><canvas id="evolutionChart"></canvas></div>'
+                    : '<div class="evolution-empty">Le graphique apparaîtra automatiquement après plusieurs visites</div>'
+                }
+            </div>
+        </section>`;
+
+        // Store data for resize handler
+        window._dashData = { compteSegments, classeSegments, history };
+
+        // ── Draw charts ──
+        requestAnimationFrame(() => {
+            drawDonut('donutCompte', compteSegments, 'legendCompte');
+            drawDonut('donutClasse', classeSegments, 'legendClasse');
+            renderTable(positions, 'gainPct', false);
+            setupTableSort(positions);
+            if (history.length >= 2) drawEvolution(history);
+        });
+
+        // ── Last updated ──
+        document.getElementById('lastUpdated').textContent = 'Mis à jour le ' + new Date().toLocaleDateString('fr-FR');
+    }
+
+    // ── TABLE RENDERING ──
+    let currentSort = { col: 'gainPct', asc: false };
+
+    function renderTable(positions, sortCol, asc) {
+        const sorted = [...positions].sort((a, b) => {
+            let va = a[sortCol], vb = b[sortCol];
+            if (typeof va === 'string') { va = va.toLowerCase(); vb = (vb || '').toLowerCase(); }
+            if (va < vb) return asc ? -1 : 1;
+            if (va > vb) return asc ? 1 : -1;
+            return 0;
+        });
+
+        const tbody = document.getElementById('tableBody');
+        if (!tbody) return;
+        tbody.innerHTML = sorted.map(p => {
+            const gainPos = p.gainEuro >= 0;
+            const cls = gainPos ? 'text-green' : 'text-red';
+            return `<tr>
+                <td class="td-compte">${esc(p.compte)}</td>
+                <td class="td-name">${esc(p.nom)}</td>
+                <td>${esc(p.classe)}</td>
+                <td class="td-mono">${p.quantite}</td>
+                <td class="td-mono">${formatEuroDec(p.prixAchat)}</td>
+                <td class="td-mono">${p.coursActuel > 0 ? formatEuroDec(p.coursActuel) : '—'}</td>
+                <td class="td-mono">${formatEuro(p.investi)}</td>
+                <td class="td-mono">${p.valeur > 0 ? formatEuro(p.valeur) : '—'}</td>
+                <td class="td-mono ${cls}">${p.valeur > 0 ? (gainPos ? '+' : '') + formatEuro(p.gainEuro) : '—'}</td>
+                <td class="td-mono ${cls}">${p.valeur > 0 ? formatPct(p.gainPct) : '—'}</td>
+                <td class="td-mono ${p.perfYTD >= 0 ? 'text-green' : 'text-red'}">${p.perfYTD != null ? formatPct(p.perfYTD) : '—'}</td>
+                <td class="td-mono ${p.perf2025 >= 0 ? 'text-green' : 'text-red'}">${p.perf2025 != null ? formatPct(p.perf2025) : '—'}</td>
+                <td class="td-mono ${p.perf2024 >= 0 ? 'text-green' : 'text-red'}">${p.perf2024 != null ? formatPct(p.perf2024) : '—'}</td>
+            </tr>`;
+        }).join('');
+
+        // Update sort arrows
+        document.querySelectorAll('.data-table th').forEach(th => {
+            const col = th.dataset.col;
+            const arrow = th.querySelector('.sort-arrow');
+            th.classList.toggle('sorted', col === sortCol);
+            if (arrow) arrow.textContent = col === sortCol ? (asc ? '▲' : '▼') : '';
+        });
+    }
+
+    function setupTableSort(positions) {
+        document.querySelectorAll('.data-table th[data-col]').forEach(th => {
+            th.addEventListener('click', () => {
+                const col = th.dataset.col;
+                const asc = currentSort.col === col ? !currentSort.asc : false;
+                currentSort = { col, asc };
+                renderTable(positions, col, asc);
+            });
+        });
+    }
+
+    // ── DONUT CHART ──
+    function drawDonut(canvasId, segments, legendId) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        ctx.scale(dpr, dpr);
+
+        const cx = rect.width / 2;
+        const cy = rect.height / 2;
+        const outerR = Math.min(cx, cy) - 4;
+        const innerR = outerR * 0.6;
+        const total = segments.reduce((s, seg) => s + seg.valeur, 0);
+
+        if (total === 0) return;
+
+        let startAngle = -Math.PI / 2;
+        const gap = 0.03;
+
+        segments.forEach(seg => {
+            const slice = (seg.valeur / total) * Math.PI * 2;
+            if (slice < 0.01) return;
+            const end = startAngle + slice - gap;
+
+            ctx.beginPath();
+            ctx.arc(cx, cy, outerR, startAngle, end);
+            ctx.arc(cx, cy, innerR, end, startAngle, true);
+            ctx.closePath();
+            ctx.fillStyle = seg.couleur;
+            ctx.fill();
+
+            startAngle += slice;
+        });
+
+        // Legend
+        const legendEl = document.getElementById(legendId);
+        if (legendEl) {
+            legendEl.innerHTML = segments.filter(s => s.valeur > 0).map(seg => {
+                const pct = ((seg.valeur / total) * 100).toFixed(1).replace('.', ',');
+                return `<div class="legend-item">
+                    <span class="legend-dot" style="background:${seg.couleur}"></span>
+                    <span class="legend-name">${esc(seg.nom)}</span>
+                    <span class="legend-pct">${pct}%</span>
+                    <span class="legend-val">${formatEuro(seg.valeur)}</span>
+                </div>`;
+            }).join('');
+        }
+    }
+
+    // ── EVOLUTION BAR CHART ──
+    function drawEvolution(history) {
+        const canvas = document.getElementById('evolutionChart');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        ctx.scale(dpr, dpr);
+
+        const W = rect.width;
+        const H = rect.height;
+        const pad = { top: 20, right: 20, bottom: 35, left: 65 };
+        const cW = W - pad.left - pad.right;
+        const cH = H - pad.top - pad.bottom;
+
+        // Aggregate monthly (take last value per month)
+        const monthly = {};
+        history.forEach(h => {
+            const key = h.date.slice(0, 7);
+            monthly[key] = h.total;
+        });
+        const entries = Object.entries(monthly).sort((a, b) => a[0].localeCompare(b[0])).slice(-12);
+        if (entries.length < 2) return;
+
+        const values = entries.map(e => e[1]);
+        const maxVal = Math.max(...values) * 1.08;
+        const minVal = Math.min(...values) * 0.92;
+        const range = maxVal - minVal || 1;
+
+        const barGap = 6;
+        const barW = Math.min(40, (cW - barGap * (entries.length - 1)) / entries.length);
+        const totalW = entries.length * barW + (entries.length - 1) * barGap;
+        const offX = pad.left + (cW - totalW) / 2;
+
+        // Grid lines
+        ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+        ctx.lineWidth = 1;
+        const gridN = 4;
+        for (let i = 0; i <= gridN; i++) {
+            const y = pad.top + (cH / gridN) * i;
+            ctx.beginPath();
+            ctx.moveTo(pad.left, y);
+            ctx.lineTo(W - pad.right, y);
+            ctx.stroke();
+
+            const lbl = maxVal - ((maxVal - minVal) / gridN) * i;
+            ctx.fillStyle = '#5a5e72';
+            ctx.font = '10px Inter, sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText(Math.round(lbl).toLocaleString('fr-FR') + ' €', pad.left - 8, y + 4);
+        }
+
+        // Bars
+        entries.forEach(([key, val], i) => {
+            const x = offX + i * (barW + barGap);
+            const normH = ((val - minVal) / range) * cH;
+            const y = pad.top + cH - normH;
+
+            const isLast = i === entries.length - 1;
+            const grad = ctx.createLinearGradient(x, y, x, pad.top + cH);
+            grad.addColorStop(0, isLast ? '#6c5ce7' : '#4a4580');
+            grad.addColorStop(1, isLast ? 'rgba(108,92,231,0.3)' : 'rgba(74,69,128,0.15)');
+
+            const r = Math.min(4, barW / 2);
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + barW - r, y);
+            ctx.quadraticCurveTo(x + barW, y, x + barW, y + r);
+            ctx.lineTo(x + barW, pad.top + cH);
+            ctx.lineTo(x, pad.top + cH);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.fillStyle = grad;
+            ctx.fill();
+
+            // X-axis label
+            ctx.fillStyle = '#5a5e72';
+            ctx.font = '10px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            const [yr, mo] = key.split('-');
+            ctx.fillText(MONTHS_FR[parseInt(mo, 10) - 1], x + barW / 2, pad.top + cH + 18);
+            if (i === 0 || yr !== entries[i-1]?.[0]?.slice(0, 4)) {
+                ctx.fillText(yr, x + barW / 2, pad.top + cH + 30);
+            }
+        });
+    }
+
+    // ── WINDOW RESIZE ──
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            // Re-render charts on resize (they read canvas size from DOM)
+            const canvases = document.querySelectorAll('canvas');
+            if (canvases.length > 0) {
+                // We'd need to re-run the full render... for simplicity, reload
+                // Actually let's just re-draw if we stored the data
+                if (window._dashData) {
+                    const { compteSegments, classeSegments, history } = window._dashData;
+                    drawDonut('donutCompte', compteSegments, 'legendCompte');
+                    drawDonut('donutClasse', classeSegments, 'legendClasse');
+                    if (history.length >= 2) drawEvolution(history);
+                }
+            }
+        }, 300);
+    });
+
+    // ── INITIALIZATION ──
+    document.addEventListener('DOMContentLoaded', async () => {
+        let positions;
+
+        if (GOOGLE_SHEET_ID) {
+            try {
+                const sheetData = await fetchSheet(GOOGLE_SHEET_ID, SHEET_NAME);
+                positions = mapSheetToPositions(sheetData);
+                if (positions.length === 0) throw new Error('Aucune position trouvée');
+            } catch (e) {
+                document.getElementById('mainContent').innerHTML = `
+                <div class="error-box" style="margin-top:3rem">
+                    <p>Impossible de charger les données</p>
+                    <small>${esc(e.message)}<br>Vérifiez que votre Google Sheet est publié sur le web et que l'ID est correct.</small>
+                </div>`;
+                return;
+            }
+        } else {
+            positions = DEMO_DATA.map(d => ({ ...d }));
+        }
+
+        const cryptoData = await fetchCryptoPrices(positions);
+        applyCryptoPrices(positions, cryptoData);
+
+        renderDashboard(positions, cryptoData);
+    });
+    </script>
+</body>
+</html>

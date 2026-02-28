@@ -624,7 +624,7 @@
         <!-- Loading state -->
         <div class="loading-screen" id="loadingScreen">
             <div class="spinner"></div>
-            <span class="loading-text">Chargement des donnees...</span>
+            <span class="loading-text">Chargement des données...</span>
         </div>
     </main>
 
@@ -639,18 +639,18 @@
     // ╚══════════════════════════════════════════════════════════════╝
     //
     // Collez ci-dessous l'ID de votre Google Sheet.
-    // C'est la longue suite de caracteres dans l'URL de votre Sheet,
+    // C'est la longue suite de caractères dans l'URL de votre Sheet,
     // entre /d/ et /edit
     //
     // Exemple : si l'URL de votre Sheet est :
     // https://docs.google.com/spreadsheets/d/1aBcDeFgHiJkLmNoPqRsTuVwXyZ/edit
     // alors l'ID est : 1aBcDeFgHiJkLmNoPqRsTuVwXyZ
     //
-    // Laissez vide ("") pour voir les donnees de demonstration.
+    // Laissez vide ("") pour voir les données de démonstration.
     //
     const GOOGLE_SHEET_ID = "";
 
-    // Nom de l'onglet dans votre Google Sheet (par defaut "Portefeuille")
+    // Nom de l'onglet dans votre Google Sheet (par défaut "Portefeuille")
     const SHEET_NAME = "Portefeuille";
 
     // ╔══════════════════════════════════════════════════════════════╗
@@ -659,7 +659,7 @@
 
     // ── CONSTANTES ──
     const CHART_COLORS = ['#6c5ce7','#00d68f','#f7b731','#3498db','#e84393','#00cec9','#fd79a8','#a29bfe'];
-    const MONTHS_FR = ['Jan','Fev','Mar','Avr','Mai','Jun','Jul','Aou','Sep','Oct','Nov','Dec'];
+    const MONTHS_FR = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
 
     const CRYPTO_MAP = {
         'BTC':'bitcoin','ETH':'ethereum','SOL':'solana','ADA':'cardano',
@@ -711,6 +711,12 @@
     ];
 
     // ── UTILITY FUNCTIONS ──
+    function esc(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
     function formatEuro(n) {
         if (n == null || isNaN(n)) return '—';
         return new Intl.NumberFormat('fr-FR', { style:'currency', currency:'EUR', minimumFractionDigits:0, maximumFractionDigits:0 }).format(n);
@@ -928,7 +934,7 @@
         const weightedPerf2024 = allPerfs.reduce((s, p) => s + p.perf2024 * p.valeur, 0) / (totalValeur || 1);
 
         // Top / Flop
-        const sortedByPerf = [...positions].filter(p => p.investi > 0 && p.compte !== 'Crypto' || (p.compte === 'Crypto' && cryptoData.ok && p.coursActuel > 0));
+        const sortedByPerf = [...positions].filter(p => (p.investi > 0 && p.compte !== 'Crypto') || (p.compte === 'Crypto' && cryptoData.ok && p.coursActuel > 0));
         sortedByPerf.sort((a, b) => b.gainPct - a.gainPct);
         const top3 = sortedByPerf.slice(0, 3);
         const flop3 = sortedByPerf.slice(-3).reverse();
@@ -938,14 +944,14 @@
 
         // ── Demo banner ──
         if (isDemo) {
-            main.innerHTML += `<div class="demo-banner">Mode demonstration — Configurez votre Google Sheet ID en haut du fichier pour voir vos vraies donnees</div>`;
+            main.innerHTML += `<div class="demo-banner">Mode démonstration — Configurez votre Google Sheet ID en haut du fichier pour voir vos vraies données</div>`;
         }
 
         // ── Patrimoine Total ──
         main.innerHTML += `
         <section class="patrimoine">
             <div class="patrimoine-card">
-                <div class="patrimoine-label">Patrimoine Total</div>
+                <div class="patrimoine-label">Patrimoine total</div>
                 <div class="patrimoine-value">${formatEuro(totalValeur)}</div>
                 <div class="patrimoine-details">
                     <div class="patrimoine-detail">
@@ -1012,10 +1018,10 @@
         // ── Top / Flop ──
         let topHtml = '', flopHtml = '';
         top3.forEach(p => {
-            topHtml += `<div class="topflop-item"><span class="topflop-name">${p.nom}</span><span class="topflop-perf text-green">${formatPct(p.gainPct)}</span></div>`;
+            topHtml += `<div class="topflop-item"><span class="topflop-name">${esc(p.nom)}</span><span class="topflop-perf text-green">${formatPct(p.gainPct)}</span></div>`;
         });
         flop3.forEach(p => {
-            flopHtml += `<div class="topflop-item"><span class="topflop-name">${p.nom}</span><span class="topflop-perf text-red">${formatPct(p.gainPct)}</span></div>`;
+            flopHtml += `<div class="topflop-item"><span class="topflop-name">${esc(p.nom)}</span><span class="topflop-perf text-red">${formatPct(p.gainPct)}</span></div>`;
         });
         main.innerHTML += `
         <section>
@@ -1039,7 +1045,7 @@
         <section>
             <div class="charts-row">
                 <div class="chart-card">
-                    <h2 class="section-title">Repartition par compte</h2>
+                    <h2 class="section-title">Répartition par compte</h2>
                     <div class="chart-layout">
                         <div class="chart-canvas-wrap">
                             <canvas id="donutCompte"></canvas>
@@ -1052,7 +1058,7 @@
                     </div>
                 </div>
                 <div class="chart-card">
-                    <h2 class="section-title">Repartition par classe</h2>
+                    <h2 class="section-title">Répartition par classe</h2>
                     <div class="chart-layout">
                         <div class="chart-canvas-wrap">
                             <canvas id="donutClasse"></canvas>
@@ -1077,13 +1083,13 @@
                 const chgPos = chg >= 0;
                 cryptoCardsHtml += `
                 <div class="crypto-card">
-                    <span class="crypto-symbol">${p.ticker}</span>
+                    <span class="crypto-symbol">${esc(p.ticker)}</span>
                     <div class="crypto-details">
                         <div class="crypto-price">${p.coursActuel > 0 ? formatEuroDec(p.coursActuel) : '—'}</div>
                         <div class="crypto-change ${chgPos ? 'text-green' : 'text-red'}">${cryptoData.ok && p.coursActuel > 0 ? formatPct(chg) + ' (24h)' : ''}</div>
                     </div>
                     <div class="crypto-val">
-                        <div class="crypto-holding">${p.quantite} ${p.ticker}</div>
+                        <div class="crypto-holding">${p.quantite} ${esc(p.ticker)}</div>
                         <div class="crypto-value">${p.valeur > 0 ? formatEuro(p.valeur) : '—'}</div>
                     </div>
                 </div>`;
@@ -1095,6 +1101,7 @@
                     <span class="status-badge ${cryptoData.ok ? 'status-live' : 'status-error'}">
                         <span class="status-dot"></span>
                         ${cryptoData.ok ? 'Prix en direct' : 'Prix indisponibles'}
+
                     </span>
                 </div>
                 <div class="crypto-total-bar">
@@ -1136,14 +1143,17 @@
         // ── Evolution Chart ──
         main.innerHTML += `
         <section>
-            <h2 class="section-title">Evolution du patrimoine</h2>
+            <h2 class="section-title">Évolution du patrimoine</h2>
             <div class="evolution-card">
                 ${history.length >= 2
                     ? '<div class="evolution-canvas-wrap"><canvas id="evolutionChart"></canvas></div>'
-                    : '<div class="evolution-empty">Le graphique apparaitra automatiquement apres plusieurs visites</div>'
+                    : '<div class="evolution-empty">Le graphique apparaîtra automatiquement après plusieurs visites</div>'
                 }
             </div>
         </section>`;
+
+        // Store data for resize handler
+        window._dashData = { compteSegments, classeSegments, history };
 
         // ── Draw charts ──
         requestAnimationFrame(() => {
@@ -1155,7 +1165,7 @@
         });
 
         // ── Last updated ──
-        document.getElementById('lastUpdated').textContent = 'Mis a jour le ' + new Date().toLocaleDateString('fr-FR');
+        document.getElementById('lastUpdated').textContent = 'Mis à jour le ' + new Date().toLocaleDateString('fr-FR');
     }
 
     // ── TABLE RENDERING ──
@@ -1176,9 +1186,9 @@
             const gainPos = p.gainEuro >= 0;
             const cls = gainPos ? 'text-green' : 'text-red';
             return `<tr>
-                <td class="td-compte">${p.compte}</td>
-                <td class="td-name">${p.nom}</td>
-                <td>${p.classe}</td>
+                <td class="td-compte">${esc(p.compte)}</td>
+                <td class="td-name">${esc(p.nom)}</td>
+                <td>${esc(p.classe)}</td>
                 <td class="td-mono">${p.quantite}</td>
                 <td class="td-mono">${formatEuroDec(p.prixAchat)}</td>
                 <td class="td-mono">${p.coursActuel > 0 ? formatEuroDec(p.coursActuel) : '—'}</td>
@@ -1186,9 +1196,9 @@
                 <td class="td-mono">${p.valeur > 0 ? formatEuro(p.valeur) : '—'}</td>
                 <td class="td-mono ${cls}">${p.valeur > 0 ? (gainPos ? '+' : '') + formatEuro(p.gainEuro) : '—'}</td>
                 <td class="td-mono ${cls}">${p.valeur > 0 ? formatPct(p.gainPct) : '—'}</td>
-                <td class="td-mono ${p.perfYTD >= 0 ? 'text-green' : 'text-red'}">${p.perfYTD ? formatPct(p.perfYTD) : '—'}</td>
-                <td class="td-mono ${p.perf2025 >= 0 ? 'text-green' : 'text-red'}">${p.perf2025 ? formatPct(p.perf2025) : '—'}</td>
-                <td class="td-mono ${p.perf2024 >= 0 ? 'text-green' : 'text-red'}">${p.perf2024 ? formatPct(p.perf2024) : '—'}</td>
+                <td class="td-mono ${p.perfYTD >= 0 ? 'text-green' : 'text-red'}">${p.perfYTD != null ? formatPct(p.perfYTD) : '—'}</td>
+                <td class="td-mono ${p.perf2025 >= 0 ? 'text-green' : 'text-red'}">${p.perf2025 != null ? formatPct(p.perf2025) : '—'}</td>
+                <td class="td-mono ${p.perf2024 >= 0 ? 'text-green' : 'text-red'}">${p.perf2024 != null ? formatPct(p.perf2024) : '—'}</td>
             </tr>`;
         }).join('');
 
@@ -1256,7 +1266,7 @@
                 const pct = ((seg.valeur / total) * 100).toFixed(1).replace('.', ',');
                 return `<div class="legend-item">
                     <span class="legend-dot" style="background:${seg.couleur}"></span>
-                    <span class="legend-name">${seg.nom}</span>
+                    <span class="legend-name">${esc(seg.nom)}</span>
                     <span class="legend-pct">${pct}%</span>
                     <span class="legend-val">${formatEuro(seg.valeur)}</span>
                 </div>`;
@@ -1381,12 +1391,12 @@
             try {
                 const sheetData = await fetchSheet(GOOGLE_SHEET_ID, SHEET_NAME);
                 positions = mapSheetToPositions(sheetData);
-                if (positions.length === 0) throw new Error('Aucune position trouvee');
+                if (positions.length === 0) throw new Error('Aucune position trouvée');
             } catch (e) {
                 document.getElementById('mainContent').innerHTML = `
                 <div class="error-box" style="margin-top:3rem">
-                    <p>Impossible de charger les donnees</p>
-                    <small>${e.message}<br>Verifiez que votre Google Sheet est publie sur le web et que l'ID est correct.</small>
+                    <p>Impossible de charger les données</p>
+                    <small>${esc(e.message)}<br>Vérifiez que votre Google Sheet est publié sur le web et que l'ID est correct.</small>
                 </div>`;
                 return;
             }
@@ -1398,21 +1408,6 @@
         applyCryptoPrices(positions, cryptoData);
 
         renderDashboard(positions, cryptoData);
-
-        // Store data for resize handler
-        calcPositionValues(positions);
-        const comptes = aggregateByCompte(positions);
-        const classes = aggregateByClasse(positions);
-        const compteOrder = ['PEA', 'Assurance Vie', 'PEE', 'Crypto'];
-        window._dashData = {
-            compteSegments: compteOrder.filter(c => comptes[c]).map((c, i) => ({
-                nom: c, valeur: comptes[c].valeur, couleur: ACCOUNT_COLORS[c] || CHART_COLORS[i]
-            })),
-            classeSegments: Object.keys(classes).map((c, i) => ({
-                nom: c, valeur: classes[c].valeur, couleur: CHART_COLORS[i % CHART_COLORS.length]
-            })),
-            history: loadHistory(),
-        };
     });
     </script>
 </body>

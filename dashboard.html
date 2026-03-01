@@ -406,6 +406,18 @@
             background: var(--red-bg);
             color: var(--red);
         }
+        .yahoo-indicator {
+            display: inline-block;
+            font-size: 0.6rem;
+            font-weight: 600;
+            color: #f7b731;
+            background: rgba(247,183,49,0.12);
+            padding: 0.1rem 0.35rem;
+            border-radius: 3px;
+            margin-left: 0.3rem;
+            vertical-align: middle;
+            cursor: help;
+        }
         .status-dot {
             width: 6px; height: 6px;
             border-radius: 50%;
@@ -679,6 +691,8 @@
         'INJ':'injective-protocol','STX':'blockstack','KAS':'kaspa',
         'TAO':'bittensor','FET':'fetch-ai','RNDR':'render-token',
         'JASMY':'jasmycoin','POL':'polygon-ecosystem-token',
+        'USDT':'tether','RSR':'reserve-rights-token','OCEAN':'ocean-protocol',
+        'COTI':'coti','ZKP':'panther','ZKPASS':'zkpass',
     };
 
     const ACCOUNT_ICONS = {
@@ -789,14 +803,60 @@
         const resp = await fetch(url);
         if (!resp.ok) throw new Error(`Erreur ${resp.status}`);
         const text = await resp.text();
-        return csvToObjects(parseCSV(text));
+        console.log('[Dashboard] CSV brut (100 premiers chars) :', text.substring(0, 200));
+        const rows = parseCSV(text);
+        console.log('[Dashboard] En-têtes détectés :', rows[0]);
+        return csvToObjects(rows);
+    }
+
+    // ── ROBUST NUMBER PARSER (handles Google Finance / French & English formats) ──
+    function num(v) {
+        let s = String(v == null ? '' : v).trim();
+        // Google Finance error values
+        if (!s || s === '—' || s === '-' || /^(#|Loading|N\/A|ERROR|Chargement)/i.test(s)) return 0;
+        // Strip currency symbols, spaces, % signs, and other non-numeric chars
+        s = s.replace(/[^\d.,-]/g, '');
+        if (!s) return 0;
+
+        const lastComma = s.lastIndexOf(',');
+        const lastDot = s.lastIndexOf('.');
+        const commaCount = (s.match(/,/g) || []).length;
+        const dotCount = (s.match(/\./g) || []).length;
+
+        if (commaCount > 0 && dotCount > 0) {
+            if (lastComma > lastDot) {
+                // French: 1.234,56 → comma is decimal
+                s = s.replace(/\./g, '').replace(',', '.');
+            } else {
+                // English: 1,234.56 → dot is decimal
+                s = s.replace(/,/g, '');
+            }
+        } else if (commaCount > 1) {
+            // Multiple commas = thousands separators: 1,234,567
+            s = s.replace(/,/g, '');
+        } else if (commaCount === 1) {
+            const afterComma = s.substring(lastComma + 1);
+            if (afterComma.length === 3 && !afterComma.includes('.')) {
+                // 1,234 → likely thousands separator
+                s = s.replace(',', '');
+            } else {
+                // 1234,56 or 0,5 → comma is decimal
+                s = s.replace(',', '.');
+            }
+        } else if (dotCount > 1) {
+            // Multiple dots = thousands separators: 1.234.567
+            s = s.replace(/\./g, '');
+        }
+
+        const n = parseFloat(s);
+        return isNaN(n) ? 0 : n;
     }
 
     // ── MAP SHEET DATA TO POSITIONS ──
     function mapSheetToPositions(objs) {
+        console.log('[Dashboard] Données brutes du Google Sheet :', objs.slice(0, 3));
         return objs.map(o => {
-            const num = (v) => { const n = parseFloat(String(v).replace(/[^\d.,-]/g, '').replace(',', '.')); return isNaN(n) ? 0 : n; };
-            return {
+            const pos = {
                 compte: o.compte || o.type || '',
                 classe: o.classe || o.class || o.categorie || '',
                 nom: o.nom || o.name || '',
@@ -808,6 +868,12 @@
                 perf2025: num(o.perf_2025 || o['2025'] || 0),
                 perf2024: num(o.perf_2024 || o['2024'] || 0),
             };
+            // Warn if current price looks wrong
+            if (pos.nom && pos.coursActuel === 0 && pos.compte !== 'Crypto') {
+                const raw = o.cours_actuel || o.cours || o.prix || o.price || '';
+                if (raw && raw !== '0') console.warn(`[Dashboard] Cours non parsé pour "${pos.nom}" : valeur brute = "${raw}"`);
+            }
+            return pos;
         }).filter(p => p.nom && p.compte);
     }
 
@@ -850,6 +916,118 @@
             if (cryptoData.prices[id] != null) {
                 p.coursActuel = cryptoData.prices[id];
                 p.change24h = cryptoData.changes[id] || 0;
+            }
+        });
+    }
+
+    // ── YAHOO FINANCE FALLBACK (for tickers Google Finance doesn't support) ──
+    const EXCHANGE_MAP = {
+        'EPA':'PA','ETR':'DE','AMS':'AS','LON':'L','BIT':'MI',
+        'EBR':'BR','STO':'ST','HEL':'HE','CPH':'CO','WSE':'WA',
+        'NASDAQ':'','NYSEARCA':'','NYSE':'','BATS':'',
+    };
+
+    function toYahooTicker(ticker) {
+        if (!ticker || ticker === 'MANUAL') return null;
+        // Already Yahoo format (contains dot + suffix): AEEM.PA, CW8.PA, IWDA.AS
+        if (/^[A-Z0-9]+\.[A-Z]{1,3}$/.test(ticker)) return ticker;
+        // Google Finance format: EPA:MC → MC.PA
+        const parts = ticker.split(':');
+        if (parts.length === 2) {
+            const exchange = parts[0].toUpperCase();
+            const symbol = parts[1];
+            const suffix = EXCHANGE_MAP[exchange];
+            if (suffix !== undefined) {
+                return suffix ? `${symbol}.${suffix}` : symbol;
+            }
+        }
+        // ISIN or unknown format — skip
+        if (ticker.length > 6 && /^[A-Z]{2}\d/.test(ticker)) return null;
+        // Try as-is (might be a US ticker like AAPL)
+        return ticker;
+    }
+
+    async function fetchYahooPrices(positions) {
+        const needPrice = positions.filter(p =>
+            p.coursActuel === 0 && p.compte !== 'Crypto' && p.ticker && p.ticker !== 'MANUAL'
+        );
+        if (needPrice.length === 0) return { prices: {}, ok: true, count: 0 };
+
+        const tickerMap = {};
+        needPrice.forEach(p => {
+            const yTicker = toYahooTicker(p.ticker);
+            if (yTicker) tickerMap[p.ticker] = yTicker;
+        });
+
+        const yahooSymbols = [...new Set(Object.values(tickerMap))];
+        if (yahooSymbols.length === 0) return { prices: {}, ok: true, count: 0 };
+
+        console.log('[Dashboard] Yahoo Finance fallback pour :', yahooSymbols);
+
+        const proxies = [
+            (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+            (url) => `https://cors.sh/${url}`,
+        ];
+
+        const baseUrl = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${yahooSymbols.join(',')}&fields=regularMarketPrice,currency`;
+
+        for (const makeProxy of proxies) {
+            try {
+                const proxyUrl = makeProxy(baseUrl);
+                const resp = await fetch(proxyUrl, {
+                    headers: { 'x-cors-api-key': 'temp_' } // cors.sh requires this header
+                });
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const data = await resp.json();
+
+                if (!data.quoteResponse || !data.quoteResponse.result) throw new Error('Format inattendu');
+
+                const prices = {};
+                data.quoteResponse.result.forEach(q => {
+                    if (q.regularMarketPrice != null) {
+                        prices[q.symbol] = {
+                            price: q.regularMarketPrice,
+                            currency: q.currency || 'EUR',
+                        };
+                    }
+                });
+
+                console.log('[Dashboard] Yahoo Finance : prix récupérés', prices);
+                return { prices, tickerMap, ok: true, count: Object.keys(prices).length };
+            } catch (e) {
+                console.warn('[Dashboard] Yahoo Finance proxy échoué :', e.message);
+                continue;
+            }
+        }
+
+        // All proxies failed — try direct (unlikely to work but worth trying)
+        try {
+            const resp = await fetch(baseUrl);
+            if (resp.ok) {
+                const data = await resp.json();
+                const prices = {};
+                (data.quoteResponse?.result || []).forEach(q => {
+                    if (q.regularMarketPrice != null) {
+                        prices[q.symbol] = { price: q.regularMarketPrice, currency: q.currency || 'EUR' };
+                    }
+                });
+                return { prices, tickerMap, ok: true, count: Object.keys(prices).length };
+            }
+        } catch (_) { /* expected to fail due to CORS */ }
+
+        console.warn('[Dashboard] Yahoo Finance : tous les proxies ont échoué');
+        return { prices: {}, tickerMap, ok: false, count: 0 };
+    }
+
+    function applyYahooPrices(positions, yahooData) {
+        if (!yahooData.ok || !yahooData.tickerMap) return;
+        positions.forEach(p => {
+            if (p.coursActuel > 0 || p.compte === 'Crypto') return;
+            const yTicker = yahooData.tickerMap[p.ticker];
+            if (yTicker && yahooData.prices[yTicker]) {
+                p.coursActuel = yahooData.prices[yTicker].price;
+                p.yahooSource = true;
+                console.log(`[Dashboard] ${p.nom} : cours Yahoo = ${p.coursActuel}`);
             }
         });
     }
@@ -910,7 +1088,7 @@
     }
 
     // ── RENDERING ──
-    function renderDashboard(positions, cryptoData) {
+    function renderDashboard(positions, cryptoData, yahooData) {
         calcPositionValues(positions);
         const comptes = aggregateByCompte(positions);
         const classes = aggregateByClasse(positions);
@@ -947,6 +1125,19 @@
             main.innerHTML += `<div class="demo-banner">Mode démonstration — Configurez votre Google Sheet ID en haut du fichier pour voir vos vraies données</div>`;
         }
 
+        // ── Yahoo Finance fallback banner ──
+        const yahooCount = yahooData && yahooData.count > 0 ? yahooData.count : 0;
+        const yahooNames = positions.filter(p => p.yahooSource).map(p => p.nom);
+        if (yahooCount > 0) {
+            main.innerHTML += `<div class="demo-banner" style="background:rgba(108,92,231,0.12);border-color:rgba(108,92,231,0.3);color:#a29bfe">
+                Yahoo Finance — Cours récupérés automatiquement pour : ${yahooNames.map(n => esc(n)).join(', ')}
+            </div>`;
+        } else if (yahooData && !yahooData.ok && positions.some(p => p.coursActuel === 0 && p.compte !== 'Crypto' && p.ticker !== 'MANUAL')) {
+            main.innerHTML += `<div class="demo-banner" style="background:var(--red-bg);border-color:rgba(255,77,106,0.3);color:var(--red)">
+                Certains cours sont indisponibles (Google Finance + Yahoo Finance en échec). Vérifiez vos tickers.
+            </div>`;
+        }
+
         // ── Patrimoine Total ──
         main.innerHTML += `
         <section class="patrimoine">
@@ -979,6 +1170,8 @@
                     </span>
                 </div>
                 ${!cryptoData.ok ? '<div style="margin-top:0.8rem;font-size:0.78rem;color:var(--text-muted)">* Hors crypto (prix indisponibles)</div>' : ''}
+                ${yahooData && yahooData.count > 0 ? '<div style="margin-top:0.5rem;font-size:0.78rem;color:#f7b731">' + yahooData.count + ' cours récupérés via Yahoo Finance</div>' : ''}
+                ${yahooData && !yahooData.ok && positions.some(p => p.coursActuel === 0 && p.compte !== 'Crypto' && p.ticker !== 'MANUAL') ? '<div style="margin-top:0.5rem;font-size:0.78rem;color:var(--text-muted)">* Certains cours indisponibles</div>' : ''}
             </div>
         </section>`;
 
@@ -1191,7 +1384,7 @@
                 <td>${esc(p.classe)}</td>
                 <td class="td-mono">${p.quantite}</td>
                 <td class="td-mono">${formatEuroDec(p.prixAchat)}</td>
-                <td class="td-mono">${p.coursActuel > 0 ? formatEuroDec(p.coursActuel) : '—'}</td>
+                <td class="td-mono">${p.coursActuel > 0 ? formatEuroDec(p.coursActuel) + (p.yahooSource ? '<span class="yahoo-indicator" title="Prix via Yahoo Finance">YF</span>' : '') : '—'}</td>
                 <td class="td-mono">${formatEuro(p.investi)}</td>
                 <td class="td-mono">${p.valeur > 0 ? formatEuro(p.valeur) : '—'}</td>
                 <td class="td-mono ${cls}">${p.valeur > 0 ? (gainPos ? '+' : '') + formatEuro(p.gainEuro) : '—'}</td>
@@ -1391,12 +1584,12 @@
             try {
                 const sheetData = await fetchSheet(GOOGLE_SHEET_ID, SHEET_NAME);
                 positions = mapSheetToPositions(sheetData);
-                if (positions.length === 0) throw new Error('Aucune position trouvée');
+                if (positions.length === 0) throw new Error('Aucune position trouvée dans le Sheet. Vérifiez les colonnes : compte, nom, ticker, quantite, prix_achat, cours_actuel');
             } catch (e) {
                 document.getElementById('mainContent').innerHTML = `
                 <div class="error-box" style="margin-top:3rem">
                     <p>Impossible de charger les données</p>
-                    <small>${esc(e.message)}<br>Vérifiez que votre Google Sheet est publié sur le web et que l'ID est correct.</small>
+                    <small>${esc(e.message)}<br>Vérifiez que votre Google Sheet est publié sur le web et que l'ID est correct.<br>Ouvrez la console (F12) pour plus de détails.</small>
                 </div>`;
                 return;
             }
@@ -1404,10 +1597,21 @@
             positions = DEMO_DATA.map(d => ({ ...d }));
         }
 
-        const cryptoData = await fetchCryptoPrices(positions);
+        // Fetch crypto prices (CoinGecko) and stock fallback (Yahoo Finance) in parallel
+        const [cryptoData, yahooData] = await Promise.all([
+            fetchCryptoPrices(positions),
+            fetchYahooPrices(positions),
+        ]);
         applyCryptoPrices(positions, cryptoData);
+        applyYahooPrices(positions, yahooData);
 
-        renderDashboard(positions, cryptoData);
+        // Check for remaining positions with no price
+        const unparsed = positions.filter(p => p.coursActuel === 0 && p.compte !== 'Crypto' && p.ticker !== 'MANUAL');
+        if (unparsed.length > 0) {
+            console.warn('[Dashboard] Positions sans cours (ni Google Finance, ni Yahoo) :', unparsed.map(p => `${p.nom} (${p.ticker})`));
+        }
+
+        renderDashboard(positions, cryptoData, yahooData);
     });
     </script>
 </body>
